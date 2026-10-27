@@ -728,13 +728,14 @@ function tySend(txt){const m=$('#tymsg');const t=(txt!=null?txt:m.value).trim();
 function fmtPhone(x){const p=x.match(PHONE);return `(${p[2]}) ${p[3]}-${p[4]}`}
 function afterHours(t,b){const [o,c]=hrsOf(b),s=t.toLowerCase();if(/midnight|tonight|late night|overnight/.test(s))return true;
  if(/\bsun(day)?\b/.test(s)&&!/every day/.test(hrsOf(b)[2]))return true;const m=s.match(/\b(\d{1,2})(?::(\d\d))?\s*(am|pm|a\.m\.|p\.m\.)/);if(m){let h=+m[1]%12;if(m[3][0]==='p')h+=12;return h<o||h>=c}return false}
+function openNow(b){const [o,c]=hrsOf(b);const d=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));const h=d.getHours()+d.getMinutes()/60;if(d.getDay()===0&&!/every day/.test(hrsOf(b)[2]))return false;return h>=o&&h<c}
 function tyNext(){const s=TY.s,b=TY.b,hr=hrsOf(b)[2];
  if(!s.issue){s.step='issue';return `What can we help you with?`}
  const need=[];if(b.addr&&!s.addr)need.push(['addr','the address']);if(!s.name)need.push(['name','your name']);if(!s.phone)need.push(['phone','the best number to reach you']);
  if(need.length>=2){const prev=s.step;s.step='info';const l=need.map(x=>x[1]);const j=l.length===2?l.join(' and '):l.slice(0,-1).join(', ')+', and '+l[l.length-1];return prev==='info'?'Thanks. I still need '+j+'.':'Got it. Could you send me '+j+'?'}
  if(need.length===1){const k=need[0][0];s.step=k;if(k==='addr')return b.addr;if(k==='name')return `Got it. Who am I speaking with?`;return s.name?`Thanks, ${s.name.split(' ')[0]}. What's the best number to reach you?`:`What's the best number to reach you?`}
- if(!s.time){s.step='time';return `When's a good time for ${ownerOf(b)} to call you back? We're open ${hr}.`}
- s.step='confirm';s.confirm=true;return `So that's ${s.issue.replace(/[.!?]+$/,'').replace(/^(\w)(?=[a-z])/,c=>c.toLowerCase())}${s.addr?' at '+s.addr:''}. I have you as ${s.name} at ${s.phone}, ${s.time}. Right?`}
+ if(!s.time){s.step='time';return openNow(b)?`When's a good time for ${ownerOf(b)} to call you back? Today works, or give me a day and time.`:`When's a good time for ${ownerOf(b)} to call you back? We're open ${hr}.`}
+ s.step='confirm';s.confirm=true;const iss=s.issue.replace(/[.!?]+$/,'').replace(/^(\w)/,c=>c.toUpperCase());return `Here's what I have for ${ownerOf(b)}: ${iss}${s.addr?', at '+s.addr:''}. Contact: ${s.name}, ${s.phone}. Call back: ${s.time}. Is that right?`}
 function tyInfo(t,b,s){let r=t,f=false;if(!s.phone&&PHONE.test(r)){s.phone=fmtPhone(r);r=r.replace(PHONE,' ');f=true}
  const parts=r.split(/[,;\n]| and (?=\d)|\s+-\s+/).map(x=>x.trim().replace(/^(my name is|name is|name's|i'm|im|i am|this is|it's|address is|the address is|we're at|i'm at|at)\s+/i,'').replace(/[.!]+$/,'')).filter(Boolean);
  const CITY=/^(carson city|reno|sparks|minden|gardnerville|dayton|fernley|incline village|truckee|stateline|zephyr cove|south lake tahoe|lake tahoe|washoe valley|verdi|mound house|genoa|silver springs|stagecoach|yerington|nv|nevada|ca|california)(\s+(nv|nevada|ca))?(\s+\d{5})?$/i;
@@ -748,6 +749,7 @@ function tyReply(t){const s=TY.s,b=TY.b,out=[];
  if(s.confirm){if(/^\s*(y|yes|yeah|yep|yup|correct|right|that's right|sounds good|perfect|ok|okay|sure)\b/i.test(t)){s.done=true;s.confirm=false;return [`Perfect. I've sent this to ${ownerOf(b)}${s.urgent?' and marked it urgent':''}. Expect a call ${s.time}. Thanks, ${s.name.split(' ')[0]}!`]}
   const before=JSON.stringify(s);const ph=t.match(PHONE);if(ph)s.phone=fmtPhone(t);if(ADDRW.test(t)&&b.addr)s.addr=t.replace(/^(it's|it is|address is|at)\s+/i,'');const nm=t.match(NAMEW);if(nm)s.name=nm[1];if(TIMEW.test(t)&&!ph){if(afterHours(t,b))return [`We're open ${hrsOf(b)[2]}. What time in there works for you?`];s.time=t.replace(/^(how about|maybe|let's do)\s+/i,'')}
   if(JSON.stringify(s)===before){s.confirm=false;return ["No problem, what should I fix?"]}return [tyNext()]}
+ if(s.step==='time'&&!s.time&&/^\s*(it'?s|its|it is|it's currently|currently|right now it'?s|rn it'?s|the time is)\s+\d{1,2}(:\d\d)?\s*(am|pm|a\.m\.|p\.m\.)?\W*$/i.test(t)){s.time='as soon as possible';return [`Got it, that works. I'll have ${ownerOf(b)} call you as soon as possible.`,tyNext()]}
  const isPrice=PRICE.test(t),emer=EMERG.test(t);
  if(emer&&!s.urgent){s.urgent=true;out.push(`Got it, I'm flagging this as urgent for ${ownerOf(b)} right now.`)}
  if(isPrice)out.push(`${ownerOf(b)==='the owner'?'The owner':ownerOf(b).replace(/^the/,'The')} will go over estimate details when ${ownerOf(b)==='the owner'?'he calls':'they call'}.`);
