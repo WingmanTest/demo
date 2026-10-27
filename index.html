@@ -675,6 +675,8 @@ const PHONE=/(\+?1[\s.-]?)?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})/;
 const TIMEW=/\b(today|tonight|tomorrow|asap|now|right away|mon(day)?|tue(s|sday)?|wed(nesday)?|thu(rs|rsday)?|fri(day)?|sat(urday)?|sun(day)?|weekend|weekday\w*|morning|afternoon|evening|noon|midnight|anytime|any time|next week|this week|\d{1,2}(:\d\d)?\s*(am|pm|a\.m\.|p\.m\.)|at \d{1,2}(:\d\d)?)\b/i;
 const ADDRW=/\b\d{1,6}\s+[A-Za-z0-9.' ]+\b(st|street|ave|avenue|rd|road|dr|drive|ct|court|ln|lane|way|blvd|pl|place|cir|circle|hwy|highway|trail|loop|pkwy)\b\.?|\b(hwy|highway|i-?80|i-?580|exit|mile marker)\b/i;
 const NAMEW=/\b(?:[Mm]y name is|[Nn]ame's|[Nn]ame is|I'm|[Ii]m|I am|[Tt]his is|[Ii]t's)\s+([A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)?)/;
+const THISNUM=/\b(este|ese|mismo|this|same|current|my)\b[^.,;!?]{0,14}\b(n[uú]mero|number|phone|tel[eé]fono|cell|celular|one|line)\b[^.,;!?]{0,25}|\b(n[uú]mero|number|phone|cell|one)\b[^.,;!?]{0,14}\b(best|good|fine|works|ok|okay|mejor|bueno|sirve)\b|\b(texting|calling|messaging) (you )?from\b[^.,;!?]*|\bbest (number )?is (this|here)\b|\bthis (is )?(the )?best\b|\beste (es )?(el )?mejor\b/i;
+const NAMEX=/\b(?:my name(?: is|'s)?|name(?: is|'s)?|i'?m|i am|this is|me llamo|mi nombre es|soy)\s+([A-Za-zÀ-ÿ'-]+(?:\s+[A-Za-zÀ-ÿ'-]+){0,3}?)(?=\s*[.,;!?]|\s+(?:and|y|my|mi|este|this|the|number|n[uú]mero|phone|address|direcci[oó]n|at|i|it)\b|\s*$)/i;
 const NOTNAME=/^(hi|hey|yes|no|ok|okay|sure|thanks|hello|good|fine|not|having|looking|calling|interested|locked|stranded|new|sorry|just|here)$/i;
 let TY={b:null,s:null,open:false,act:-1,custom:''};
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -737,9 +739,12 @@ function tyNext(){const s=TY.s,b=TY.b,hr=hrsOf(b)[2];
  if(!s.time){s.step='time';return openNow(b)?`When's a good time for ${ownerOf(b)} to call you back? Today works, or give me a day and time.`:`When's a good time for ${ownerOf(b)} to call you back? We're open ${hr}.`}
  s.step='confirm';s.confirm=true;const iss=s.issue.replace(/[.!?]+$/,'').replace(/^(\w)/,c=>c.toUpperCase());return `Here's what I have for ${ownerOf(b)}: ${iss}${s.addr?', at '+s.addr:''}. Contact: ${s.name}, ${s.phone}. Call back: ${s.time}. Is that right?`}
 function tyInfo(t,b,s){let r=t,f=false;if(!s.phone&&PHONE.test(r)){s.phone=fmtPhone(r);r=r.replace(PHONE,' ');f=true}
+ if(!s.phone&&THISNUM.test(r)){s.phone='this number';r=r.replace(THISNUM,' ');f=true}
+ {const m2=r.match(/^\s*me\s+([A-Za-z'-]+)\s*(?=[,.;]|$)/i);if(m2&&!s.name&&!NOTNAME.test(m2[1])){s.name=m2[1].replace(/\b[a-z]/g,c=>c.toUpperCase());r=r.replace(m2[0],' ');f=true}}
+ {const m=r.match(NAMEX);if(m&&!s.name&&!NOTNAME.test(m[1].split(' ')[0])){s.name=m[1].trim().replace(/\b[a-zà-ÿ]/g,c=>c.toUpperCase());r=r.replace(m[0],' ');f=true}}
  const parts=r.split(/[,;\n]|(?<=[.!?])\s+| and (?=\d)|\s+-\s+/).map(x=>x.trim().replace(/^(my name is|name is|name's|i'm|im|i am|this is|it's|my address is|address is|the address is|we're at|i'm at|at)\s+/i,'').replace(/[.!]+$/,'')).filter(Boolean);
  const CITY=/^(carson city|reno|sparks|minden|gardnerville|dayton|fernley|incline village|truckee|stateline|zephyr cove|south lake tahoe|lake tahoe|washoe valley|verdi|mound house|genoa|silver springs|stagecoach|yerington|nv|nevada|ca|california)(\s+(nv|nevada|ca))?(\s+\d{5})?$/i;
- parts.forEach((q,i)=>{if(CITY.test(q)){if(s.addr&&!s.addr.toLowerCase().includes(q.toLowerCase())){s.addr+=', '+q;f=true}return}if(b.addr&&!s.addr&&(ADDRW.test(q)||/\d/.test(q)&&/[A-Za-z]{3}/.test(q)||(i===0&&!s.name&&parts.length>=2&&!parts.some((x,j)=>j!==i&&/\d/.test(x))&&!/^[A-Z][a-z'-]+(\s+[A-Z][a-z'-]+)?$/.test(q)))){s.addr=q;f=true}
+ parts.forEach((q,i)=>{if(CITY.test(q)){if(s.addr&&!s.addr.toLowerCase().includes(q.toLowerCase())){s.addr+=', '+q;f=true}return}if(b.addr&&!s.addr&&(ADDRW.test(q)||/^(the\s+)?(house|home|place|ranch|apartment|apt|trailer|lot|shop|office|by|off|near|next to|behind|across|casa|cerca)\b/i.test(q)||/\d/.test(q)&&/[A-Za-z]{3}/.test(q)||(i===0&&!s.name&&parts.length>=2&&!parts.some((x,j)=>j!==i&&/\d/.test(x))&&!/^[A-Z][a-z'-]+(\s+[A-Z][a-z'-]+)?$/.test(q)))){s.addr=q;f=true}
  else if(!s.name&&/^[A-Za-z][A-Za-z'-]+(\s+[A-Za-z][A-Za-z'-]+){0,3}$/.test(q)&&!NOTNAME.test(q.split(' ')[0])&&!TIMEW.test(q)){s.name=q.replace(/\b\w/g,c=>c.toUpperCase());f=true}});return f}
 function tyReply(t){const s=TY.s,b=TY.b,out=[];
  if(s.stopped)return [];
@@ -753,7 +758,10 @@ function tyReply(t){const s=TY.s,b=TY.b,out=[];
  const isPrice=PRICE.test(t),emer=EMERG.test(t);
  if(emer&&!s.urgent){s.urgent=true;out.push(`Got it, I'm flagging this as urgent for ${ownerOf(b)} right now.`)}
  if(isPrice)out.push(`${ownerOf(b)==='the owner'?'The owner':ownerOf(b).replace(/^the/,'The')} will go over estimate details when ${ownerOf(b)==='the owner'?'he calls':'they call'}.`);
- let used=false;const first=!s.issue;if(!s.phone&&!first&&/\b(this|same|current)\s+(number|one|phone)\b|number (i'?m|i am) (texting|messaging)|texting from|this is my (number|phone|cell)|\bthis (number )?is (the )?best\b|best (number )?is this/i.test(t)){s.phone='this number';used=true}if(s.step==='info'&&!isPrice&&!emer&&tyInfo(t,b,s))used=true;const ph=t.match(PHONE);if(ph&&!s.phone){s.phone=fmtPhone(t);used=true}
+ const IDK=/^\s*(idk|i dont know|i don't know|i dunno|dunno|no se|no sé|not sure|no idea)\W*$/i;
+ if(s.step&&s.step!=='issue'&&s.issue&&IDK.test(t)){s.idk=(s.idk||0)+1;if(s.idk>1){if(b.addr&&!s.addr)s.addr='not given';if(!s.phone)s.phone='this number'}else out.push("No worries, just send what you have.");out.push(tyNext());return out}
+ let used=false;const first=!s.issue;if(!s.phone&&!first&&THISNUM.test(t)){s.phone='this number';used=true}if(['info','name','phone','addr'].includes(s.step)&&!isPrice&&!emer&&tyInfo(t,b,s))used=true;const ph=t.match(PHONE);if(ph&&!s.phone){s.phone=fmtPhone(t);used=true}
+ if(!s.time&&s.issue&&/^\s*(asap|a\.s\.a\.p|now|right now|ya|ahorita|lo antes posible)\W*$/i.test(t)){s.time='as soon as possible';used=true}
  const nm=t.match(NAMEW);if(nm&&!s.name&&!NOTNAME.test(nm[1].split(' ')[0])){s.name=nm[1];used=true}
  if(b.addr&&!s.addr&&!isPrice&&!OFF.test(t)&&(first?/\b\d{1,6}\s+\w+.*\b(st|street|ave|rd|dr|ct|ln|way|blvd)\b/i.test(t):(ADDRW.test(t)||(s.step==='addr'&&/\d|\w+\s+\w+/.test(t)&&!ph&&!NAMEW.test(t))))){s.addr=t.replace(/^(it's|it is|the address is|address is|we're at|i'm at|at)\s+/i,'').trim().replace(/[.]$/,'');used=true}
  if(TIMEW.test(t)&&!ph&&!first&&(s.step==='time'||(!isPrice&&s.issue&&!s.time))){if(afterHours(t,b)){out.push(`We're open ${hrsOf(b)[2]}. What time in there works for you?`);s.step='time';return out}if(!s.time){s.time=t.replace(/^(how about|maybe|let's do|can you (come|call)( at)?)\s+/i,'').replace(/[?.!]+$/,'');used=true}}
