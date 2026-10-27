@@ -432,7 +432,7 @@ function renderList(){const LS=biz.leads;
 function setF(k){filter=k;renderList()}
 $('#q').oninput=e=>{q=e.target.value.toLowerCase();renderList()};
 let cur='inbox';
-function show(v,load){const m=$('#main');const go=()=>{document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.t===v||(v==='detail'&&b.dataset.t==='inbox');b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});m.scrollTop=0;cur=v};
+function show(v,load){const m=$('#main');const go=()=>{document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.t===v||(v==='detail'&&b.dataset.t==='inbox');b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});m.scrollTop=0;cur=v;if(v!=='try'&&location.hash==='#try')history.replaceState(null,'',location.pathname+location.search)};
  if(load&&v!==cur){m.classList.add('loading');m.scrollTop=0;setTimeout(()=>{m.classList.remove('loading');go()},260)}else go()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{if(b.dataset.t==='today')renderToday();show(b.dataset.t,true)});
 document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.getAttribute&&t.getAttribute('role')==='button'){e.preventDefault();t.click()}
@@ -778,7 +778,7 @@ function openTry(){if(!TY.s)renderTry();show('try');$('#slead').classList.add('o
 renderList();renderToday();renderAlerts();renderSettings();renderTry();
 document.querySelector('nav button[data-t=try]').onclick=()=>openTry();
 window.addEventListener('hashchange',()=>{if(location.hash==='#try')openTry()});
-const h=location.hash.slice(1);if(h.startsWith('lead'))openLead(+h.slice(4));else if(h==='try')openTry();else if(h)show(h);
+const h=location.hash.slice(1);if(h.startsWith('lead'))openLead(+h.slice(4));else if(h==='try')history.replaceState(null,'',location.pathname+location.search);else if(h)show(h);
 </script>
 </body>
 </html>
