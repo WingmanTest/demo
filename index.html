@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a8a">
+<title>Wingman · Inbox</title>
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#0f172a;--mut:#5b6b80;--line:#e2e8f0;--blue:#2563eb;--blue2:#1e40af;--bluel:#eff6ff;--org:#c2410c;--red:#dc2626;--redl:#fef2f2;--grn:#15803d;--grnl:#f0fdf4;--amb:#b45309;--ambl:#fffbeb;--pur:#6d28d9;--purl:#f5f3ff;--sl:#475569;--sll:#f1f5f9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at 20% 10%,#dbeafe,#eef2f7 45%,#e2e8f0);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;gap:56px;padding:24px}
+:focus-visible{outline:3px solid #60a5fa;outline-offset:2px;border-radius:10px}
+.side{max-width:340px}
+.side h1{font-size:30px;letter-spacing:-.5px;line-height:1.15}
+.side p{color:var(--sl);margin-top:12px;line-height:1.55;font-size:15px}
+.side ul{margin-top:18px;list-style:none;border-top:1px solid #cbd5e1}
+.side li{padding:9px 0;color:var(--sl);font-size:14px;border-bottom:1px solid #cbd5e1}
+.side li b{color:var(--ink)}
+.side .fine{font-size:13px;margin-top:16px}
+.brandmark{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--blue2);margin-bottom:18px;font-size:14px}
+.phone{width:390px;height:min(844px,calc(100vh - 48px));min-height:560px;background:#0f172a;border-radius:54px;padding:12px;box-shadow:0 30px 80px rgba(15,23,42,.35);flex-shrink:0}
+.screen{width:100%;height:100%;background:var(--bg);border-radius:43px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:40px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:14px;font-weight:600;background:#fff;flex-shrink:0}
+.notch{width:110px;height:28px;background:#0f172a;border-radius:20px}
+.top{background:#fff;padding:6px 14px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);flex-shrink:0;position:relative}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#1e3a8a);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
+.bizbtn{display:flex;align-items:center;gap:10px;border:0;background:none;font:inherit;text-align:left;cursor:pointer;min-height:44px;min-width:0;flex:1;color:inherit}
+.bizbtn .t{min-width:0}
+.top .nm{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .nm i{font-style:normal;color:var(--mut);font-size:12px;margin-left:4px}
+.top .sub{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--grn);background:var(--grnl);padding:5px 10px;border-radius:20px;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}0%{box-shadow:0 0 0 0 rgba(22,163,74,.6)}}
+.bizmenu{position:absolute;left:10px;right:10px;top:100%;margin-top:6px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(15,23,42,.25);z-index:20;padding:6px;display:none}
+.bizmenu.on{display:block}
+.bizmenu button{display:flex;width:100%;align-items:center;gap:10px;border:0;background:none;font:inherit;padding:8px;border-radius:10px;cursor:pointer;min-height:52px;text-align:left;color:inherit}
+.bizmenu button:hover,.bizmenu button.on{background:var(--bluel)}
+.bizmenu small{display:block;color:var(--mut);font-size:12px}
+.bizmenu .add{color:var(--blue);font-weight:600;justify-content:center;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 14px 20px;position:relative}
+main::-webkit-scrollbar{width:0}
+.view{display:none}.view.on{display:block;animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+.skel{display:none}.loading .view{display:none!important}.loading .skel{display:block}
+.sk{background:linear-gradient(90deg,#e2e8f0,#f1f5f9,#e2e8f0);background-size:200% 100%;animation:sh 1s infinite;border-radius:14px;margin-bottom:10px}
+@keyframes sh{to{background-position:-200% 0}}
+h2{font-size:22px;letter-spacing:-.3px;margin:2px 2px 12px}
+h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:20px 4px 8px}
+.a2hs{display:flex;gap:10px;align-items:center;padding:10px 6px 10px 12px;margin-bottom:12px;background:var(--bluel);border:1px solid #bfdbfe;font-size:13px;color:var(--blue2);line-height:1.35}
+.a2hs b{display:block;color:var(--ink)}
+.x{border:0;background:none;width:44px;height:44px;font-size:20px;color:var(--sl);cursor:pointer;flex-shrink:0;border-radius:10px}
+.search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 12px;margin-bottom:10px;min-height:46px}
+.search:focus-within{border-color:var(--blue)}
+.search input{border:0;outline:0;flex:1;font:inherit;font-size:15px;background:none;min-width:0;min-height:44px}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:4px 2px;margin-bottom:6px}
+.filters::-webkit-scrollbar{display:none}
+.fb{border:1px solid var(--line);background:#fff;border-radius:20px;padding:0 13px;min-height:44px;font:inherit;font-size:13px;font-weight:600;color:var(--sl);white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.fb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fb .n{opacity:.65}
+.srcf{display:flex;align-items:center;gap:8px;margin:0 2px 10px;font-size:13px;color:var(--mut)}
+.srcf select{width:auto;flex:1;min-height:44px;padding:0 10px}
+.card{background:var(--card);border-radius:16px;box-shadow:0 1px 2px rgba(15,23,42,.06),0 4px 14px rgba(15,23,42,.04);border:1px solid #edf1f6}
+.lead{padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;gap:11px;transition:transform .1s;position:relative}
+.lead:active{transform:scale(.99)}
+.lead.urgent{box-shadow:inset 4px 0 0 var(--red),0 1px 2px rgba(15,23,42,.06)}
+.lead.high{box-shadow:inset 4px 0 0 #f97316,0 1px 2px rgba(15,23,42,.06)}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;position:relative}
+.unread{position:absolute;right:-1px;top:-1px;width:11px;height:11px;border-radius:50%;background:var(--blue);border:2px solid #fff}
+.lb{flex:1;min-width:0}
+.lr{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ln{font-weight:650;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt{font-size:12px;color:var(--mut);white-space:nowrap}
+.li{font-size:13.5px;color:var(--sl);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;gap:6px;margin-top:6px;align-items:center;font-size:12px;color:var(--mut);min-width:0;white-space:nowrap}
+.meta .sep{opacity:.5}
+.meta .tw{overflow:hidden;text-overflow:ellipsis}
+.srcic{display:inline-flex;align-items:center;gap:4px}
+.srcic svg{width:14px;height:14px;flex-shrink:0}
+.pc{display:inline-flex;align-items:center;gap:3px;color:var(--blue2);font-weight:600;background:var(--bluel);border-radius:6px;padding:1px 6px}
+.pc svg{width:13px;height:13px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.chip{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.c-urgent{background:var(--red);color:#fff}
+.c-high{background:#c2410c;color:#fff}
+.c-new{background:var(--bluel);color:var(--blue2)}
+.c-quote{background:var(--purl);color:var(--pur)}
+.c-follow{background:var(--ambl);color:var(--amb)}
+.c-booked{background:var(--grnl);color:var(--grn)}
+.c-vendor,.c-declined{background:var(--sll);color:var(--sl)}
+.c-es{background:#ecfeff;color:#0e7490}
+.c-opt{background:var(--redl);color:#b91c1c}.c-resub{background:var(--grnl);color:var(--grn)}
+.lead.muted{opacity:.75}
+.lead.muted .li{font-style:italic}
+.empty{text-align:center;color:var(--mut);padding:44px 16px;font-size:14px;line-height:1.5}
+.empty .ic{width:56px;height:56px;border-radius:50%;background:var(--grnl);display:grid;place-items:center;margin:0 auto 12px;font-size:26px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+nav{background:#fff;border-top:1px solid var(--line);display:flex;padding:4px 6px 22px;flex-shrink:0}
+nav button{flex:1;border:0;background:none;font:inherit;font-size:11px;font-weight:600;color:#5b6b80;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;min-height:52px;border-radius:12px}
+nav button.on{color:var(--blue)}
+nav svg{width:24px;height:24px}
+.badge{position:absolute;top:2px;left:calc(50% + 5px);background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px}
+.back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--blue);font:inherit;font-weight:600;font-size:15px;cursor:pointer;margin:-6px 0 4px -6px;min-height:44px;padding:0 6px}
+.dh{padding:16px;text-align:center}
+.dh .av{width:58px;height:58px;font-size:20px;margin:0 auto 8px}
+.dh .nm{font-size:20px;font-weight:700}
+.dh .ph{color:var(--mut);font-size:14px;margin:2px 0 8px}
+.acts{display:flex;gap:8px;margin-top:14px}
+.btn{flex:1;border:0;border-radius:12px;padding:0 11px;min-height:46px;font:inherit;font-weight:650;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.bp{background:var(--blue);color:#fff}.bs{background:var(--bluel);color:var(--blue2)}.bg{background:var(--grn);color:#fff}.bq{background:var(--sll);color:var(--sl)}
+.sum{margin-top:10px;padding:14px;box-shadow:inset 4px 0 0 var(--blue)}
+.sum.u{box-shadow:inset 4px 0 0 var(--red);background:linear-gradient(90deg,#fff5f5,#fff)}
+.k{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mut);margin-bottom:6px;text-transform:uppercase}
+.sum p{font-size:14px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.kv{padding:11px 12px;min-width:0}
+.kv .k{margin-bottom:2px;letter-spacing:.03em}
+.kv .v{font-size:14px;font-weight:600}
+.map{margin-top:10px;overflow:hidden}
+.mapimg{height:100px;background:#dfe9f5;position:relative;overflow:hidden}
+.mapimg svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;left:50%;top:44%;transform:translate(-50%,-100%);font-size:26px}
+.addr{padding:4px 4px 4px 12px;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.addr a{color:var(--blue);font-weight:600;font-size:13px;text-decoration:none;min-height:44px;display:flex;align-items:center;padding:0 8px}
+.gal{padding:12px;margin-top:10px}
+.gal .hd{display:flex;justify-content:space-between;align-items:center}
+.gal .hd .k{margin:0}
+.strip{display:flex;gap:8px;overflow-x:auto;margin-top:8px}
+.strip::-webkit-scrollbar{display:none}
+.ph-t{border:0;padding:0;border-radius:12px;overflow:hidden;cursor:pointer;flex-shrink:0;width:96px;height:96px;position:relative;background:#cbd5e1}
+.ph-t svg{width:100%;height:100%;display:block}
+.ph-t span{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:10.5px;font-weight:600;padding:12px 6px 4px;text-align:left}
+.msg .pics{display:flex;gap:6px;flex-wrap:wrap}
+.msg .pics .ph-t{width:80px;height:80px}.msg .pics .ph-t span{font-size:9.5px}
+.msg.pm{padding:5px;background:var(--sll)}
+.tl{padding:12px 14px;margin-top:10px}
+.tli{display:flex;gap:10px;font-size:13px;padding:5px 0;color:var(--sl)}
+.tli b{color:var(--ink);font-weight:600}
+.tld{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.chat{padding:14px 12px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:82%;padding:9px 12px;border-radius:18px;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.msg.c{background:var(--sll);align-self:flex-start;border-bottom-left-radius:5px}
+.msg.b{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.msg.o{background:#0f172a;color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.msg .tr{display:block;margin-top:6px;padding-top:6px;border-top:1px dashed #cbd5e1;font-size:12.5px;color:var(--sl)}
+.msg.b .tr{border-color:rgba(255,255,255,.4);color:#dbeafe}
+.who{font-size:11px;color:var(--mut);margin:0 6px -4px}
+.who.r{align-self:flex-end}
+.qr{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding:2px}
+.qr::-webkit-scrollbar{display:none}
+.qr button{border:1px solid #bfdbfe;background:#fff;color:var(--blue2);border-radius:20px;padding:0 12px;min-height:44px;font:inherit;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
+.compose{display:flex;gap:8px;margin-top:8px;padding:8px}
+.compose input{flex:1;min-width:0;border:1px solid var(--line);border-radius:22px;padding:0 14px;min-height:44px;font:inherit;font-size:15px;outline:0}
+.compose input:focus{border-color:var(--blue)}
+.compose button{border:0;background:var(--blue);color:#fff;border-radius:22px;padding:0 18px;min-height:44px;font:inherit;font-weight:650;cursor:pointer}
+.optbar{margin-top:8px;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.4}
+.optbar.out{background:var(--redl);color:#991b1b}.optbar.resub{background:var(--grnl);color:#166534}
+textarea,select,input[type=time]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:14px;background:#fff;outline:0;color:var(--ink);min-height:44px}
+textarea{min-height:70px;resize:vertical}
+.pad{padding:14px}
+.note{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+.more{display:flex;gap:8px;margin-top:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.st{padding:13px}
+.st .k{font-size:12px;letter-spacing:0;text-transform:none;font-weight:600;margin:0}
+.st .v{font-size:26px;font-weight:750;letter-spacing:-.5px;margin-top:3px}
+.st .d{font-size:11.5px;color:var(--grn);font-weight:600}
+.st.wide{grid-column:span 2;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border:0}
+.st.wide .k,.st.wide .d{color:#dbeafe}
+.st.u .v{color:var(--red)}
+.fu{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;min-height:56px}
+.fu:last-child{border-bottom:0}
+.fu .av{width:34px;height:34px;font-size:12px}
+.fu .w{margin-left:auto;font-size:12px;font-weight:700;color:var(--amb);background:var(--ambl);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.fu small{display:block;color:var(--mut);font-size:12px}
+.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:9px 0}
+.bar span:first-child{width:118px;color:var(--sl)}
+.bar .tk{flex:1;height:8px;border-radius:4px;background:var(--sll);overflow:hidden}
+.bar .tk i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.bar b{width:22px;text-align:right}
+.lock{border-radius:18px;padding:22px 14px 16px;background:linear-gradient(160deg,#1e293b,#334155 50%,#7c2d12);color:#fff;text-align:center}
+.lock .tm{font-size:50px;font-weight:300;letter-spacing:-1px}
+.lock .dt{font-size:13px;opacity:.85}
+.ntf{margin-top:18px;background:rgba(255,255,255,.9);color:var(--ink);border-radius:16px;padding:11px 12px;text-align:left}
+.ntf .h{display:flex;justify-content:space-between;font-size:12px;color:var(--sl);margin-bottom:4px}
+.ntf p{font-size:13.5px;line-height:1.38}
+.row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;min-height:56px;border-bottom:1px solid var(--line);font-size:14.5px;gap:10px}
+.row:last-child{border-bottom:0}
+.row>div{min-width:0}
+.row small{display:block;color:var(--mut);font-size:12px;margin-top:2px}
+.row .val{color:var(--mut);font-size:14px;text-align:right}
+.row select{width:auto;max-width:58%}
+.tg{width:50px;height:30px;border-radius:15px;background:#94a3b8;position:relative;cursor:pointer;flex-shrink:0;transition:.2s;border:0}
+.tg::before{content:"";position:absolute;inset:-8px -2px}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+.tg.on{background:var(--grn)}.tg.on::after{left:23px}
+.greet{background:var(--blue);color:#fff;border-radius:18px 18px 5px 18px;padding:11px 13px;font-size:14px;line-height:1.42;margin:4px 0 0 30px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--sll);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:550;color:var(--sl)}
+.fld{padding:10px 14px;border-bottom:1px solid var(--line)}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:4px}
+.hrs{display:grid;grid-template-columns:36px minmax(0,1fr) 8px minmax(0,1fr) 50px;gap:5px;align-items:center;padding:6px 12px;font-size:14px}
+.hrs input{padding:4px 6px;font-size:13px;min-width:0}
+.hrs .cl{grid-column:2/5;color:var(--mut);font-size:13px;padding-left:4px}
+.ch{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.ch .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.ch .ic svg{width:18px;height:18px}
+.ch b{font-size:14.5px}.ch small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px;line-height:1.4}
+.ch .on{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--grn);white-space:nowrap}
+.site{margin:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fafafa}
+.site .bar1{height:22px;background:#e2e8f0;display:flex;align-items:center;gap:4px;padding:0 8px}
+.site .bar1 i{width:7px;height:7px;border-radius:50%;background:#94a3b8}
+.site .bar1 span{margin-left:6px;font-size:10px;color:var(--sl);background:#fff;border-radius:4px;padding:1px 8px}
+.site .hero{height:230px;position:relative;padding:12px;background:linear-gradient(180deg,#fff,#f1f5f9)}
+.site .hero .h{font-weight:800;font-size:13px}.site .hero .l{height:6px;border-radius:3px;background:#cbd5e1;margin-top:7px;width:60%}
+.wdg{position:absolute;right:10px;bottom:10px;width:200px}
+.wdg .pnl{background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(15,23,42,.2);overflow:hidden;margin-bottom:6px}
+.wdg .ph{background:var(--blue);color:#fff;font-size:11.5px;font-weight:700;padding:7px 10px}
+.wdg .bd{padding:8px;font-size:11.5px;line-height:1.35}
+.wdg .bd div{background:var(--sll);border-radius:10px 10px 10px 3px;padding:6px 8px}
+.wdg .in{margin:0 8px 8px;border:1px solid var(--line);border-radius:14px;font-size:10.5px;color:var(--mut);padding:5px 8px}
+.wdg .bub{width:40px;height:40px;border-radius:50%;background:var(--blue);margin-left:auto;display:grid;place-items:center;color:#fff;font-size:18px}
+pre.snip{margin:0 12px 6px;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;font-size:11.5px;line-height:1.5;white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Menlo,Consolas,monospace}
+.fwd{padding:14px}
+.fwd .ok{display:flex;align-items:center;gap:8px;font-weight:650;color:var(--grn)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--sll);padding:2px 6px;border-radius:5px;font-size:13px;white-space:nowrap}
+.steps{margin:10px 0 12px 18px;font-size:13.5px;color:var(--sl);line-height:1.7}
+.testres{display:none;margin-top:10px;background:var(--grnl);color:var(--grn);border-radius:10px;padding:10px;font-size:13px;font-weight:600}
+.pricebox{background:var(--ambl);border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.45;margin-top:10px}
+.demo{text-align:center;font-size:11.5px;color:var(--mut);margin-top:18px}
+.toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center;z-index:40}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.collapsed-h{font-size:13px;color:var(--mut);margin:14px 0 6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:none;font:inherit;min-height:44px;padding:0 4px}
+.lbx{position:absolute;inset:0;background:#020617;z-index:30;display:none;flex-direction:column;color:#fff}
+.lbx.on{display:flex}
+.lbx .tp{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 0 16px;font-size:13px}
+.lbx .tp b{font-size:15px}
+.lbx .x{color:#fff;font-size:26px}
+.lbx .im{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;position:relative;touch-action:pan-y}
+.lbx .im svg{width:100%;max-height:100%;border-radius:12px}
+.lbx .ar{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:24px;cursor:pointer}
+.lbx .ar.l{left:10px}.lbx .ar.r{right:10px}
+.lbx .ft{text-align:center;padding:0 16px 28px;font-size:13px;opacity:.85}
+/* Try it */
+.trybtn{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 20px rgba(37,99,235,.3);text-decoration:none}
+.trybtn small{font-weight:500;opacity:.85;font-size:12px}
+.slead{margin-top:16px;display:none}.slead.on{display:block}
+.tyhd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.tyhd h2{margin:0}
+.tyrs{border:1px solid var(--line);background:#fff;border-radius:10px;min-height:36px;padding:0 12px;font:inherit;font-size:13px;font-weight:650;cursor:pointer;color:var(--ink)}
+.tyintro{font-size:12.5px;color:var(--sl);margin-bottom:8px;line-height:1.4}
+.tychat{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.tychat .tb{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--line);background:#f8fafc}
+.tychat .tb .logo{width:30px;height:30px;font-size:11px;border-radius:50%}
+.tychat .tb b{font-size:14px;display:block}.tychat .tb small{font-size:11px;color:var(--grn)}
+.tylog{height:300px;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:6px;background:#fff}
+.tm{max-width:82%;padding:8px 12px;border-radius:18px;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.tm.bz{background:var(--sll);align-self:flex-start;border-bottom-left-radius:5px}
+.tm.me{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.tm.sys{align-self:center;background:none;color:var(--mut);font-size:11.5px;padding:2px}
+.tm.typing{color:var(--mut);letter-spacing:2px}
+.tybar{border-top:1px solid var(--line);padding:8px 10px 10px;background:#f8fafc}
+.cbx{position:relative;margin-bottom:8px}
+.cbx label{display:block;font-size:11.5px;font-weight:700;color:var(--sl);margin-bottom:4px}
+.cbx .w{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:0 10px}
+.cbx .w:focus-within{border-color:var(--blue)}
+.cbx input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:15px;min-height:42px;background:none}
+.cbx .cv{font-size:12px;color:var(--mut);border:0;background:none;cursor:pointer;min-height:40px;padding:0 4px}
+.cbl{position:absolute;left:0;right:0;bottom:calc(100% + 4px);max-height:300px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.2);z-index:20;display:none;padding:4px 0}
+.cbl.on{display:block}
+.cbl .g{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:8px 12px 3px}
+.cbl [role=option]{padding:9px 12px;font-size:14px;cursor:pointer;min-height:38px}
+.cbl [role=option][aria-selected=true],.cbl [role=option]:hover{background:var(--bluel);color:var(--blue2)}
+.cbl .none{padding:10px 12px;font-size:13px;color:var(--mut)}
+.tyother{display:none;gap:6px;margin-bottom:8px}.tyother.on{display:flex}
+.tyother input{flex:1;min-width:0;border:1.5px solid #cbd5e1;border-radius:12px;padding:0 10px;font:inherit;font-size:15px;min-height:42px}
+.tyother button{flex:0 0 auto}
+.tysug{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:4px}
+.tysl{font-size:11px;color:var(--mut);margin-bottom:4px}.tysug span{font-size:11px;color:var(--mut);align-self:center;white-space:nowrap}
+.tysug button{flex:0 0 auto;border:1px solid #bfdbfe;background:var(--bluel);color:var(--blue2);border-radius:16px;padding:0 11px;min-height:34px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tyin{display:flex;gap:6px}
+.tyin input{flex:1;min-width:0;border:1.5px solid #cbd5e1;border-radius:22px;padding:0 14px;font:inherit;font-size:15px;min-height:44px}
+.tyin button{width:44px;height:44px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0}
+.tyin input:disabled{background:#f1f5f9}
+.tynote{font-size:11px;color:var(--mut);text-align:center;margin-top:6px}
+.owl{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.owl .k{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between}
+.owl dl{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;margin-top:8px;font-size:13px}
+.owl dt{color:var(--mut)}.owl dd{font-weight:600;overflow-wrap:anywhere}.owl dd.e{color:#94a3b8;font-weight:400}
+.owl .sm{margin-top:10px;padding:10px;border-radius:10px;background:var(--grnl);border:1px solid #bbf7d0;font-size:13px;line-height:1.45;display:none}
+.owl .sm.on{display:block}.owl .sm.u{background:var(--redl);border-color:#fecaca}
+.owl .ug{display:none;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.04em}.owl .ug.on{display:inline-block}
+.tylink{margin:0 12px 10px;width:calc(100% - 24px)!important}
+@media(max-width:900px){.side{display:none}}
+@media(max-width:480px){body{padding:0;display:block}.phone{width:100%;height:100vh;height:100dvh;min-height:0;border-radius:0;padding:0;box-shadow:none}.screen{border-radius:0}.status{display:none}.top{padding-top:10px}nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}}
+</style>
+</head>
+<body>
+<section class="side" aria-label="About this preview">
+  <div class="brandmark"><span class="logo" style="width:26px;height:26px;font-size:11px;border-radius:7px">RD</span> Wingman · Owner app preview</div>
+  <h1>Every inquiry answered, even when you're on a roof.</h1>
+  <p>Missed calls, texts to your business number, and website chats all land in one inbox. Each customer gets a quick reply, you get a clean summary and their photos, and you call back the right job first.</p>
+  <ul>
+    <li><b>Inbox</b> · every inquiry, sorted by urgency</li>
+    <li><b>Today</b> · activity, follow-ups, jobs recovered</li>
+    <li><b>Alerts</b> · urgent leads reach you during quiet hours</li>
+    <li><b>Settings</b> · channels, hours, greeting, forwarding</li>
+  </ul>
+  <a class="trybtn" href="#try" onclick="event.preventDefault();openTry()">💬 Try it as a customer <small>· pick any business type</small></a>
+  <div class="slead owl" id="slead" aria-live="polite"></div>
+  <p class="fine">Pricing is always yours. Replies never quote a number; you send the estimate.</p>
+</section>
+
+<div class="phone"><div class="screen">
+  <div class="status" aria-hidden="true"><span>2:47</span><span class="notch"></span><span>5G ▮</span></div>
+  <header class="top">
+    <button class="bizbtn" id="bizbtn" aria-haspopup="true" aria-expanded="false" onclick="toggleBiz()"><span class="logo" id="blogo">SR</span><span class="t"><span class="nm"><span id="bname">Sierra Roofing</span><i>▾</i></span><span class="sub" id="barea" style="display:block">Reno · Carson City · Lake Tahoe</span></span></button>
+    <div class="live"><span class="dot"></span>Live</div>
+    <div class="bizmenu" id="bizmenu" role="menu"></div>
+  </header>
+  <main id="main">
+    <div class="skel" aria-hidden="true"><div class="sk" style="height:26px;width:40%"></div><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div></div>
+    <section class="view on" id="v-inbox">
+      <div class="card a2hs" id="a2hs"><span style="font-size:22px">📲</span><div><b>Add Wingman to your home screen</b>Tap Share, then "Add to Home Screen" for one-tap access.</div><button class="x" aria-label="Dismiss" onclick="dismissA2()">×</button></div>
+      <h2>Inbox</h2>
+      <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" aria-label="Search leads" placeholder="Search name, town, or issue"></div>
+      <div class="filters" id="filters" role="toolbar" aria-label="Filter by status"></div>
+      <label class="srcf">Source <select id="srcsel" aria-label="Filter by source" onchange="src=this.value;renderList()"><option value="all">All channels</option><option value="call">Missed call</option><option value="text">Text</option><option value="chat">Website chat</option><option value="form">Web form</option></select></label>
+      <div id="list"></div>
+    </section>
+    <section class="view" id="v-detail"></section>
+    <section class="view" id="v-today"></section>
+    <section class="view" id="v-alerts"></section>
+    <section class="view" id="v-settings"></section>
+    <section class="view" id="v-try"></section>
+  </main>
+  <nav id="nav" aria-label="Main">
+    <button data-t="inbox" class="on" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5 5h14l1 8v6H4v-6z"/></svg>Inbox<span class="badge" id="nb">3</span></button>
+    <button data-t="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Today</button>
+    <button data-t="alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg>Alerts</button>
+    <button data-t="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Settings</button>
+    <button data-t="try"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/></svg>Try it</button>
+  </nav>
+  <div class="lbx" id="lbx" role="dialog" aria-modal="true" aria-label="Photo viewer"><div class="tp"><div><b id="lbt"></b><span id="lbs"></span></div><button class="x" aria-label="Close" onclick="closeLb()">×</button></div><div class="im" id="lbim"></div><div class="ft" id="lbf"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div></div>
+<script>
+const C={urgent:['URGENT','c-urgent'],high:['HIGH','c-high'],new:['NEW','c-new'],quote:['ESTIMATE','c-quote'],follow:['FOLLOW-UP','c-follow'],repeat:['REPEAT','c-high'],booked:['BOOKED','c-booked'],vendor:['VENDOR','c-vendor'],spam:['SPAM','c-vendor'],declined:['FILTERED','c-declined'],es:['ES → EN','c-es'],insurance:['INSURANCE','c-follow']};
+
+const L=[
+{id:1,pics:["leak","leak"],src:"call",name:"Dana Whitfield",ph:"(775) 555-0142",town:"South Reno",addr:"2280 Wingfield Ct, Reno, NV 89523",ago:"6m",time:"2:41 PM",issue:"Active leak in living room after storm",chips:["urgent","new"],status:"New",col:"#dc2626",pref:"ASAP – today",type:"Shingle, ~15 yrs",
+ sum:"NEW LEAD (URGENT): Dana Whitfield, South Reno. Water dripping through living room ceiling after this afternoon's storm, bucket out, spot growing. Asphalt shingle, ~15 yrs old. Wants someone today. Okay with a tarp now, full repair later.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Water is literally dripping from my living room ceiling. Started during the storm like 30 min ago"],["b","Ugh, sorry Dana. Let's get you taken care of. Is it a steady drip or coming in fast? And is it near any lights or outlets?"],["c","Steady drip, bucket's half full. Not near the lights"],["b","Good. Keep the bucket there and move anything valuable out of the way. Roughly how old is the roof, and is it shingle or tile?"],["c","Shingle, maybe 15 years? Can someone come today?"],["b","I've flagged this as urgent and sent it straight to the owner. Expect a call within 15 minutes to set up a tarp visit today. What's the address?"],["c","2280 Wingfield Ct, 89523"]]},
+{id:2,pics:["shingles","tarp"],src:"text",name:"Marcus Bell",ph:"(530) 555-0188",town:"South Lake Tahoe",addr:"1147 Pioneer Trail, South Lake Tahoe, CA 96150",ago:"22m",time:"2:25 PM",issue:"Needs emergency tarp on cabin, snow coming",chips:["urgent"],status:"New",col:"#ea580c",pref:"Before Thursday's storm",type:"Metal + shingle",
+ sum:"NEW LEAD (URGENT): Marcus Bell, cabin in South Lake Tahoe. Wind tore shingles off the north side, decking exposed. Owner lives in Sacramento, cabin empty. Needs tarp before Thursday's snow. Lockbox access available.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Neighbor says a bunch of shingles blew off my cabin. I'm in Sac. Snow is supposed to hit Thursday"],["b","Got it. Can you see bare wood, or just a few missing shingles?"],["c","He sent a pic, you can see wood. Like 6x8 ft section"],["b","Thanks. That needs a tarp before the snow. Is there a way for the crew to get access if you're not there?"],["c","Lockbox on the side door, I'll text the code"]]},
+{id:3,pics:["leak"],src:"call",name:"Robert Ochoa",ph:"(775) 555-0119",town:"Sparks",addr:"880 Vista Ridge Dr, Sparks, NV 89436",ago:"41m",time:"2:06 PM",issue:"\"Leaking AGAIN. I'll go elsewhere in an hour\"",chips:["high","repeat"],status:"New",col:"#f97316",pref:"Within the hour",type:"Repair done Sep 12",
+ sum:"REPEAT CUSTOMER (HIGH PRIORITY): Robert Ochoa, Sparks. Same leak by the chimney flashing we repaired Sep 12 is back. He's frustrated and says he'll call another roofer in an hour. Recommend owner calls personally right away; likely a warranty callback.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","You guys fixed my chimney leak last month and it's leaking AGAIN. Same exact spot."],["b","Robert, I'm really sorry about that. That's not the experience we want you to have. Is it coming in at the same spot by the chimney?"],["c","Yes. Same stain, same drip. I paid $900 for this"],["b","Understood. I'm sending this to the owner right now as a priority and he'll call you personally. Work we did is covered under our workmanship warranty."],["c","If nobody calls me in an hour I'm calling someone else."],["b","Totally fair. I've marked it high priority so it goes to the top of his list."]]},
+{id:4,src:"form",name:"Jennifer Park",ph:"(775) 555-0167",town:"Carson City",addr:"412 Mountain St, Carson City, NV 89703",ago:"1h",time:"1:38 PM",issue:"How much for a 2,000 sq ft shingle re-roof?",chips:["quote","new"],status:"New",col:"#7c3aed",pref:"Weekday mornings",type:"Shingle tear-off, 1 layer",
+ sum:"QUOTE REQUEST: Jennifer Park, Carson City. Wants full re-roof, approx. 2,000 sq ft single-story ranch, one existing shingle layer. No leaks, roof ~22 yrs old, selling in spring. Interested in architectural shingles. Free estimate visit; weekday mornings work best. No price given, owner to provide estimate.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Hi! How much for a 2,000 sq ft shingle re-roof?"],["b","Great question. Every roof is a little different, so the owner puts together the actual number after a quick free look. Can I grab a few details so he has what he needs?"],["c","Sure"],["b","Is it one story or two, and do you know how many layers of shingles are on there now?"],["c","Single story, I think just one layer. House was built in 2003"],["b","Perfect. Any leaks now, or is this more of an upgrade?"],["c","No leaks, we're selling in spring and the inspector flagged its age. Thinking architectural shingles"],["b","Makes sense. What days/times work for a free estimate visit?"],["c","Weekday mornings are best"]]},
+{id:5,pics:["tile"],src:"text",name:"María González",ph:"(775) 555-0133",town:"Reno (NE)",addr:"3105 Sutro St, Reno, NV 89512",ago:"1h",time:"1:20 PM",issue:"Goteras en la cocina · Leak in kitchen",chips:["new","es"],status:"New",col:"#0e7490",pref:"Saturday morning",type:"Tile (concrete)",
+ sum:"NEW LEAD: María González, NE Reno (texted in Spanish; replies sent in Spanish). Small leak in kitchen ceiling when it rains, a few cracked concrete tiles visible. Not urgent, wants Saturday morning visit. Prefers a Spanish-speaking callback if possible.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Hola, tengo goteras en la cocina cuando llueve. ¿Hablan español?","Hi, I have leaks in the kitchen when it rains. Do you speak Spanish?"],["b","¡Claro que sí! Lamento lo de la gotera. ¿Es mucha agua o solo unas gotas? ¿El techo es de teja o de tejas asfálticas?","Of course! Sorry about the leak. Is it a lot of water or just a few drops? Is the roof tile or asphalt shingle?"],["c","Solo unas gotas. Es de teja y se ven algunas rotas","Just a few drops. It's tile and you can see some broken ones"],["b","Gracias. ¿Qué día le queda mejor para que vengan a revisarlo?","Thanks. What day works best for someone to come take a look?"],["c","El sábado en la mañana. Si es posible alguien que hable español 🙏","Saturday morning. If possible someone who speaks Spanish 🙏"]]},
+{id:6,pics:["hail","hail","hail"],src:"chat",name:"Tom Reyes",ph:"(775) 555-0174",town:"Damonte Ranch",addr:"10655 Sky Valley Dr, Reno, NV 89521",ago:"2h",time:"12:52 PM",issue:"Hail damage – State Farm claim open",chips:["insurance","new"],status:"Contacted",col:"#d97706",pref:"Before adjuster on Fri 10am",type:"Shingle, 9 yrs",
+ sum:"INSURANCE CLAIM: Tom Reyes, Damonte Ranch. Hail last Tuesday, dented gutters and bruised shingles. State Farm claim #SF-NV-55-0391 filed, adjuster visiting Fri 10 AM. Wants roofer present for the inspection and a written damage report.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Got hail damage from last Tuesday. Already filed with State Farm"],["b","Sorry to hear it. Good call filing quickly. Has an adjuster been scheduled yet?"],["c","Friday at 10am. Can you guys be there?"],["b","We work with insurance claims regularly and can usually meet the adjuster on site. What damage have you noticed?"],["c","Dents in the gutters, granules everywhere in the downspouts, a couple shingles look cracked"],["b","Thanks Tom. I've sent this to the owner and asked him to confirm Friday 10 AM with you today."]]},
+{id:7,src:"form",wait:5,name:"Linda Cho · Summit PM",ph:"(775) 555-0110",town:"Reno / Sparks",addr:"Summit Property Mgmt, 50 W Liberty St, Reno",ago:"3h",time:"11:47 AM",issue:"4 rental units need inspections + 1 leak",chips:["new","follow"],status:"Contacted",col:"#2563eb",pref:"This week, tenant notice needed",type:"Mixed, 4 properties",
+ sum:"PROPERTY MANAGER: Linda Cho, Summit Property Management. 4 single-family rentals (3 Reno, 1 Sparks) need pre-winter inspections; one unit on Kietzke Ln has a slow leak in a closet. Wants a single bundled estimate and invoices to the PM office. Needs 24h notice for tenants.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Hi, I manage several rentals. Need inspections on 4 homes before winter, and one has a small leak."],["b","Happy to help. Can you send the addresses, and which one has the leak?"],["c","I'll email the list. Leak is the Kietzke Ln unit, closet ceiling. We need 24 hrs notice for tenants"],["b","Got it. I'll have the owner reach out to set up a bundled visit."]]},
+{id:8,src:"chat",name:"Greg Hammond · Hammond Logistics",ph:"(775) 555-0156",town:"Carson City (industrial)",addr:"5400 Arrowhead Dr, Carson City, NV 89706",ago:"4h",time:"10:30 AM",issue:"Commercial flat roof – TPO inspection",chips:["quote","new"],status:"Quote sent",col:"#334155",pref:"Any weekday",type:"TPO, ~18,000 sq ft",
+ sum:"COMMERCIAL: Greg Hammond, Hammond Logistics warehouse. ~18,000 sq ft TPO flat roof, 12 yrs old, ponding near two drains. Wants inspection + maintenance plan quote. Owner to provide estimate after site visit.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Need an inspection on our warehouse flat roof, TPO, about 18k sq ft. Some ponding by the drains"],["b","Thanks Greg. Any active leaks inside, or is this preventive?"],["c","Preventive for now. Want a maintenance plan too"],["b","Noted. The owner will follow up to set a walk-through and put together pricing."]]},
+{id:9,src:"call",name:"Kelsey Moore · Realtor",ph:"(775) 555-0129",town:"Minden",addr:"1620 Kimmerling Rd, Gardnerville, NV 89460",ago:"5h",time:"9:44 AM",issue:"Roof certification for buyer, escrow closes 11/9",chips:["booked"],status:"Booked",col:"#16a34a",pref:"Thu 10/29, 1 PM (booked)",type:"Shingle, 2 story",
+ sum:"REALTOR REQUEST: Kelsey Moore (Coldwell Banker). Needs roof inspection + certification letter for buyer. Escrow closes Nov 9. Booked Thu Oct 29 at 1 PM; seller will leave side gate open.",
+ conv:[["c","Hi, realtor here. Need a roof cert for a listing in Gardnerville, escrow closes 11/9"],["b","Hi Kelsey! We can do that. Is the home vacant or occupied?"],["c","Occupied, but seller will leave gate open"],["o","Thursday 10/29 at 1 PM works. See you then – Mike"]]},
+{id:10,src:"call",name:"Steve · Peak Supply Co.",ph:"(916) 555-0101",town:"Sacramento",addr:"—",ago:"6h",time:"8:58 AM",issue:"Sales rep: bulk underlayment pricing",chips:["vendor"],status:"New",col:"#94a3b8",pref:"—",type:"Vendor",low:true,
+ sum:"VENDOR (LOW PRIORITY): Steve from Peak Supply Co. offering bulk synthetic underlayment pricing. No customer job. Saved for later.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","Hi there, Steve from Peak Supply. Wanted to share our fall pricing on synthetic underlayment."],["b","Thanks Steve. I'll pass this along to the owner. He'll reach out if interested."]]},
+{id:11,src:"text",opt:"out",name:"Unknown",ph:"(702) 555-0190",town:"—",addr:"—",ago:"7h",time:"7:12 AM",issue:"Message hidden – off-topic / inappropriate",chips:["declined"],status:"Lost",col:"#cbd5e1",pref:"—",type:"—",low:true,hidden:true,
+ sum:"Declined automatically: off-topic, inappropriate message. No reply beyond the standard greeting. Number added to block list.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","[message hidden – inappropriate content]"]]},
+{id:12,pics:["icedam","icedam"],src:"call",wait:26,opt:"resub",name:"Alan Fisher",ph:"(775) 555-0181",town:"Incline Village",addr:"795 Lakeshore Blvd, Incline Village, NV 89451",ago:"Yesterday",time:"5:16 PM",issue:"Ice dams last winter – heat cable + gutter quote",chips:["quote","follow"],status:"Quote sent",col:"#0f766e",pref:"Before Thanksgiving",type:"Cedar shake",
+ sum:"FOLLOW-UP: Alan Fisher, Incline Village. Ice dams last winter caused interior damage. Wants heat cable + gutter guard estimate before Thanksgiving. Estimate sent Fri, awaiting reply. Follow-up reminder set for Wednesday.",
+ conv:[["b","Hey, this is Sierra Roofing. Sorry, we're out on a job so I'm covering for the guys. What's going on with your roof?"],["c","We had terrible ice dams last winter. Looking for heat cables and gutter guards before it snows"],["b","Smart to get ahead of it. Is the roof cedar shake, metal, or shingle?"],["c","Cedar shake"],["o","Hi Alan, estimate is in your email. Happy to walk through it. – Mike"]]}
+];
+const PL={leak:'Ceiling stain',hail:'Hail bruising',shingles:'Missing shingles',tarp:'Temporary tarp',icedam:'Ice dam',tile:'Cracked tiles'};
+function psvg(k,v){v=v||0;const g=`<svg viewBox="0 0 160 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`;
+ if(k==='leak')return g+`<rect width="160" height="160" fill="#e9e2d4"/><path d="M0 ${30+v*8}h160" stroke="#d6cdbb" stroke-width="2"/><ellipse cx="${80-v*14}" cy="62" rx="46" ry="30" fill="#c9b48a" opacity=".55"/><ellipse cx="${80-v*14}" cy="62" rx="30" ry="19" fill="#a98d5c" opacity=".55"/><ellipse cx="${82-v*14}" cy="64" rx="13" ry="8" fill="#7c6440" opacity=".6"/><path d="M${82-v*14} 72q-4 12 0 16q4-4 0-16z" fill="#7fa7c9"/><rect x="${62-v*14}" y="118" width="40" height="30" rx="4" fill="#2563eb"/><rect x="${60-v*14}" y="114" width="44" height="7" rx="3" fill="#1d4ed8"/></svg>`;
+ if(k==='hail'){let d='';for(let r=0;r<7;r++)for(let c=0;c<6;c++)d+=`<rect x="${c*30-(r%2)*15}" y="${r*24}" width="29" height="23" fill="${['#4b5563','#525b67','#474f5b'][(r+c+v)%3]}"/>`;let h='';for(let i=0;i<14;i++){const x=(i*53+v*31)%150+5,y=(i*37+v*17)%140+10;h+=`<circle cx="${x}" cy="${y}" r="${3+i%3}" fill="#9ca3af" opacity=".8"/><circle cx="${x}" cy="${y}" r="${1.5}" fill="#d1d5db"/>`}return g+d+h+`<rect y="146" width="160" height="14" fill="#cbd5e1"/><path d="M20 150q6 6 12 0M70 152q5 5 10 0M120 149q6 6 12 0" stroke="#94a3b8" stroke-width="2" fill="none"/></svg>`}
+ if(k==='shingles'){let d='';for(let r=0;r<7;r++)for(let c=0;c<6;c++){const miss=r>1&&r<5&&c>1&&c<4;d+=miss?'':`<rect x="${c*30-(r%2)*15}" y="${r*24}" width="29" height="23" fill="${(r+c)%2?'#57534e':'#4b4540'}"/>`}return g.replace('aria','data-b="1" aria')+`<rect width="160" height="160" fill="#c8a36a"/><path d="M0 40h160M0 80h160M0 120h160" stroke="#b08850" stroke-width="2"/>`+d+`<path d="M48 50l5 10M90 70l6-8" stroke="#8b6b3e" stroke-width="2"/></svg>`}
+ if(k==='tarp')return g+`<rect width="160" height="160" fill="#93c5fd"/><path d="M0 160L80 40L160 160z" fill="#4b4540"/><path d="M30 150L82 62L140 150z" fill="#1d4ed8"/><path d="M50 120L82 66M110 120L84 66M40 140h96" stroke="#3b82f6" stroke-width="3"/><rect x="44" y="140" width="16" height="10" rx="3" fill="#a8a29e"/><rect x="110" y="140" width="16" height="10" rx="3" fill="#a8a29e"/><rect x="74" y="96" width="16" height="10" rx="3" fill="#a8a29e"/></svg>`;
+ if(k==='icedam'){let ic='';for(let i=0;i<12;i++)ic+=`<path d="M${8+i*13} 92l4 ${18+(i*7+v*5)%26}l4-${18+(i*7+v*5)%26}z" fill="#e0f2fe" stroke="#bae6fd"/>`;return g+`<rect width="160" height="160" fill="#cbd5e1"/><rect y="0" width="160" height="70" fill="#7c5c3b"/><path d="M0 70h160" stroke="#5b4129" stroke-width="3"/><path d="M0 40q40-12 80 0t80 0v52H0z" fill="#f8fafc"/><rect y="86" width="160" height="8" fill="#e2e8f0"/>${ic}</svg>`}
+ if(k==='tile'){let d='';for(let r=0;r<6;r++)for(let c=0;c<5;c++)d+=`<path d="M${c*34} ${r*28}h32v26h-32z" fill="${(r+c)%2?'#9a8f84':'#a39888'}"/><path d="M${c*34} ${r*28+8}q16-8 32 0" stroke="#857a6f" fill="none"/>`;return g+d+`<path d="M60 40l10 18-6 14 12 20" stroke="#3f3a35" stroke-width="2.5" fill="none"/><path d="M100 96l-8 14 6 10" stroke="#3f3a35" stroke-width="2.5" fill="none"/></svg>`}
+ return g+'<rect width="160" height="160" fill="#cbd5e1"/></svg>'}
+const SRC={call:['Missed call','#dc2626','<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/><path d="m16 2 6 6M22 2l-6 6"/>'],text:['Text','#2563eb','<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],chat:['Website chat','#7c3aed','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'],form:['Web form','#0f766e','<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>']};
+const sic=(s,lbl=true)=>`<span class="srcic" style="color:${SRC[s][1]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${SRC[s][2]}</svg>${lbl?`<span style="color:var(--mut)">${SRC[s][0]}</span>`:''}</span>`;
+const CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+const ASK="Can you send a couple photos of the damage? It helps the owner plan the visit.";
+L.forEach(l=>{if(l.pics){const i=Math.min(4,l.conv.length);l.conv.splice(i,0,["b",ASK],["p",l.pics])}});
+const BIZ=[
+ {id:'sr',name:'Sierra Roofing',ini:'SR',area:'Reno · Carson City · Lake Tahoe',trade:'Roofing',noun:'roof',num:'(775) 555-0100',owner:'Mike',tone:'friendly',services:['Leak repair','Re-roofing','Emergency tarping','Hail & insurance claims','Inspections & certs','Commercial flat (TPO)','Gutters','Ice dam prevention'],towns:['Reno','Sparks','Carson City','Minden / Gardnerville','Incline Village','South Lake Tahoe','Truckee'],leads:L},
+ {id:'th',name:'Truckee Heating & Air',ini:'TH',area:'Truckee · Tahoe City · Kings Beach',trade:'HVAC',noun:'heating or AC',num:'(530) 555-0122',owner:'Dana',tone:'professional',services:['Furnace repair','Heat pumps','AC tune-ups','Ductwork','Boilers','Maintenance plans'],towns:['Truckee','Tahoe City','Kings Beach','Northstar'],leads:[
+  {id:101,src:'call',name:'Paul Jensen',ph:'(530) 555-0145',town:'Tahoe Donner',addr:'12010 Skislope Way, Truckee, CA 96161',ago:'12m',time:'2:35 PM',issue:'Furnace out, house at 52°F',chips:['urgent','new'],status:'New',col:'#dc2626',pref:'Tonight',type:'Gas furnace, 2009',sum:'NEW LEAD (URGENT): Paul Jensen, Tahoe Donner. Furnace stopped this morning, house at 52°F, two kids at home. Pilot will not relight. Wants a tech tonight.',conv:[['c','Our furnace quit, its 52 in the house. Can someone come tonight?'],['b','Sorry Paul, that is no fun with this cold. Is the furnace gas or electric, and roughly how old?'],['c','Gas, installed 2009']]},
+  {id:102,src:'chat',name:'Rachel Kim',ph:'(530) 555-0163',town:'Kings Beach',addr:'8400 N Lake Blvd, Kings Beach, CA 96143',ago:'2h',time:'12:40 PM',issue:'Heat pump estimate for cabin',chips:['quote'],status:'New',col:'#7c3aed',pref:'Weekends',type:'Baseboard electric',sum:'ESTIMATE REQUEST: Rachel Kim, Kings Beach. Wants to replace baseboard heat with a heat pump in a 1,400 sq ft cabin. Owner to provide estimate after visit.',conv:[['c','Looking at heat pumps for our cabin. What would it cost?'],['b','Great question. Every home is different, so the owner prepares the estimate after a quick free visit. How big is the cabin?']]}]},
+ {id:'cl',name:'Carson Landscaping',ini:'CL',area:'Carson City · Dayton · Minden',trade:'Landscaping',noun:'yard',num:'(775) 555-0177',owner:'Luis',tone:'short',services:['Sprinkler repair','Xeriscape design','Fall cleanup','Tree trimming','Snow removal'],towns:['Carson City','Dayton','Minden','Genoa'],leads:[
+  {id:201,src:'form',name:'Ellen Brooks',ph:'(775) 555-0138',town:'Genoa',addr:'2290 Genoa Ln, Genoa, NV 89411',ago:'40m',time:'2:07 PM',issue:'Winterize sprinklers + fall cleanup',chips:['new'],status:'New',col:'#0f766e',pref:'Next week',type:'1/2 acre',sum:'NEW LEAD: Ellen Brooks, Genoa. Half-acre lot, wants sprinkler blowout and leaf cleanup before first freeze.',conv:[['c','Need sprinklers winterized and leaves cleaned up before it freezes.'],['b','Got it. About how big is the yard?']]}]}];
+let biz=BIZ[0],TONE={friendly:'Friendly',professional:'Professional',short:'Short & direct'};
+function greeting(b){const n=b.name;return b.tone==='friendly'?`Hey, this is ${n}. Sorry we missed you, we're out on a job. What's going on with your ${b.noun}?`:b.tone==='professional'?`Hello, you've reached ${n}. We're with a customer right now. How can we help with your ${b.noun}?`:`${n} here. Missed your call. What do you need help with?`}
+const ini=n=>n.split(/[ ·]+/).filter(w=>/^[A-ZÁÉÍÓÚ]/.test(w)).slice(0,2).map(w=>w[0]).join('')||'?';
+const $=s=>document.querySelector(s);
+let filter='all',q='',src='all';
+const isU=l=>l.chips.includes('urgent')||l.chips.includes('high');
+const F={all:['All',l=>!l.low],urgent:['Urgent',l=>!l.low&&isU(l)],needs:['Needs reply',l=>l.status==='New'&&!l.low],quotes:['Estimates',l=>l.chips.includes('quote')],booked:['Booked',l=>l.status==='Booked']};
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2000)}
+function chipH(l,all){let c=l.chips.filter(x=>all||x!=='new');if(!all){const p=c.find(x=>['urgent','high','vendor','spam','declined','booked'].includes(x))||c[0];c=p?[p]:[]}
+ let h=c.map(x=>`<span class="chip ${C[x][1]}">${C[x][0]}</span>`).join('');
+ if(all&&l.status==='Booked'&&!l.chips.includes('booked'))h+=`<span class="chip c-booked">BOOKED</span>`;
+ if(l.opt==='out')h+=`<span class="chip c-opt">OPTED OUT</span>`;if(all&&l.opt==='resub')h+=`<span class="chip c-resub">RESUBSCRIBED</span>`;return h}
+function row(l){const cls=l.chips.includes('urgent')?'urgent':l.chips.includes('high')?'high':'';const n=(l.pics||[]).length;
+ return `<div class="card lead ${cls} ${l.low?'muted':''}" role="button" tabindex="0" aria-label="${l.name}, ${l.issue.replace(/"/g,'')}" onclick="openLead(${l.id})"><div class="av" style="background:${l.col}">${l.hidden?'?':ini(l.name)}${l.status==='New'&&!l.low?'<span class="unread"></span>':''}</div><div class="lb"><div class="lr"><span class="ln">${l.name}</span><span class="lt">${l.ago}</span></div><div class="li">${l.issue}</div><div class="meta">${chipH(l)}${sic(l.src)}${n?`<span class="pc" title="${n} photos">${CAM}${n}</span>`:''}${l.town!=='—'?`<span class="sep">·</span><span class="tw">${l.town}</span>`:''}</div></div></div>`}
+function renderList(){const LS=biz.leads;
+ $('#filters').innerHTML=Object.entries(F).map(([k,[n,f]])=>`<button class="fb ${k===filter?'on':''}" aria-pressed="${k===filter}" onclick="setF('${k}')">${n}<span class="n">${LS.filter(f).filter(l=>src==='all'||l.src===src).length}</span></button>`).join('');
+ const m=l=>(!q||(l.name+l.town+l.issue).toLowerCase().includes(q))&&(src==='all'||l.src===src);
+ const main=LS.filter(F[filter][1]).filter(m), low=LS.filter(l=>l.low).filter(m);
+ let h=main.map(row).join('')||`<div class="empty"><div class="ic">✓</div><b>${q||src!=='all'?'No matches':'All caught up'}</b>${q||src!=='all'?'Try a different search or source.':'New inquiries will show up here the moment they arrive.'}</div>`;
+ if(filter==='all'&&low.length)h+=`<button class="collapsed-h" aria-expanded="false" onclick="const n=this.nextElementSibling,o=n.hidden;n.hidden=!o;this.setAttribute('aria-expanded',o);this.lastChild.textContent=o?'Hide ▴':'Show ▾'"><span>Low priority & filtered (${low.length})</span><span>Show ▾</span></button><div hidden>${low.map(row).join('')}</div>`;
+ $('#list').innerHTML=h;
+ $('#nb').textContent=LS.filter(l=>l.status==='New'&&isU(l)).length;$('#nb').hidden=!+$('#nb').textContent;
+}
+function setF(k){filter=k;renderList()}
+$('#q').oninput=e=>{q=e.target.value.toLowerCase();renderList()};
+let cur='inbox';
+function show(v,load){const m=$('#main');const go=()=>{document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.t===v||(v==='detail'&&b.dataset.t==='inbox');b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});m.scrollTop=0;cur=v};
+ if(load&&v!==cur){m.classList.add('loading');m.scrollTop=0;setTimeout(()=>{m.classList.remove('loading');go()},260)}else go()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{if(b.dataset.t==='today')renderToday();show(b.dataset.t,true)});
+document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.getAttribute&&t.getAttribute('role')==='button'){e.preventDefault();t.click()}
+ if($('#lbx').classList.contains('on')){if(e.key==='Escape')closeLb();if(e.key==='ArrowRight')lbGo(1);if(e.key==='ArrowLeft')lbGo(-1)}else if(e.key==='Escape')closeBiz()});
+const QR=[["On my way","On my way now, see you in about 30 minutes. – {o}"],["Can you send photos?",ASK],["Estimate booked for…","Estimate booked for Thursday at 10 AM. I'll text when I'm headed over. – {o}"],["Call you shortly","Thanks for your patience. I'll call you within the hour. – {o}"],["Estimate sent","Your estimate is in your email. Happy to walk through it. – {o}"]];
+const thumb=(l,k,i)=>`<button class="ph-t" aria-label="Open photo: ${PL[k]}" onclick="openLb(${l.id},${i})">${psvg(k,i)}<span>${PL[k]}</span></button>`;
+function openLead(id){const l=biz.leads.find(x=>x.id===id);const u=isU(l);const nm=l.name.split(' ·')[0];let pi=0;
+ const conv=l.conv.map(([w,t,tr])=>{if(w==='p'){const h=`<div class="who">${nm} · ${t.length} photo${t.length>1?'s':''}</div><div class="msg c pm"><div class="pics">${t.map(k=>thumb(l,k,pi++)).join('')}</div></div>`;return h}
+  return `<div class="who ${w!=='c'?'r':''}">${w==='c'?nm:w==='o'?'You':biz.name+' · Auto-reply'}</div><div class="msg ${w}">${t}${tr?`<span class="tr">🌐 ${tr}</span>`:''}</div>`}).join('');
+ const tel=l.ph.replace(/\D/g,'');const pics=l.pics||[];
+ const first={call:`<b>Missed call at ${l.time}</b> from ${l.ph}`,text:`<b>Text received at ${l.time}</b> on your business number`,chat:`<b>Website chat started at ${l.time}</b>`,form:`<b>Web form submitted at ${l.time}</b>`}[l.src];
+ $('#v-detail').innerHTML=`<button class="back" onclick="show('inbox')">‹ Inbox</button>
+ <div class="card dh"><div class="av" style="background:${l.col}">${l.hidden?'?':ini(l.name)}</div><div class="nm">${l.name}</div><div class="ph">${l.ph}${l.town!=='—'?' · '+l.town:''}</div><div class="chips" style="justify-content:center">${sic(l.src)}</div><div class="chips" style="justify-content:center;margin-top:8px">${chipH(l,1)}</div>
+ <div class="acts"><a class="btn bp" href="tel:${tel}">📞 Call</a><a class="btn bs" href="sms:${tel}">💬 Text</a><button class="btn bg" onclick="setStatus(${id},'Booked')">✓ Booked</button></div></div>
+ ${l.opt==='out'?`<div class="optbar out">🚫 <b>Opted out.</b> This number replied STOP and won't receive texts. You can still call.</div>`:l.opt==='resub'?`<div class="optbar resub">✓ <b>Resubscribed.</b> Replied START on Oct 21, so texts are allowed again.</div>`:''}
+ <div class="card sum ${u?'u':''}"><div class="k">Summary for you</div><p>${l.sum}</p></div>
+ ${pics.length?`<div class="card gal"><div class="hd"><div class="k">${CAM.replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')} Photos (${pics.length})</div><span class="lt">Sent ${l.time} · ${l.src==='chat'||l.src==='form'?'website upload':'MMS'}</span></div><div class="strip">${pics.map((k,i)=>thumb(l,k,i)).join('')}</div></div>`:''}
+ <div class="grid2"><div class="card kv"><div class="k">Preferred time</div><div class="v">${l.pref}</div></div><div class="card kv"><div class="k">Details</div><div class="v">${l.type}</div></div></div>
+ ${l.addr!=='—'?`<div class="card map"><div class="mapimg"><svg viewBox="0 0 360 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 64 Q90 46 180 68 T360 54" stroke="#fff" stroke-width="10" fill="none"/><path d="M120 0 L150 100" stroke="#fff" stroke-width="7"/><path d="M260 0 L240 100" stroke="#fff" stroke-width="5"/><rect x="20" y="10" width="70" height="32" rx="4" fill="#cfe0c9"/><rect x="290" y="72" width="60" height="24" rx="4" fill="#cfe0c9"/></svg><div class="pin">📍</div></div><div class="addr"><span>${l.addr}</span><a href="#" onclick="toast('Opening directions…');return false">Directions</a></div></div>`:''}
+ <h3>Conversation</h3><div class="card chat" id="chat">${conv}</div>
+ ${l.opt==='out'?'':`<div class="qr" aria-label="Quick replies">${QR.map(([n,t],i)=>`<button onclick="useQR(${i})">${n}</button>`).join('')}</div>
+ <div class="card compose"><input id="rep" aria-label="Reply" placeholder="Reply as ${biz.name}…" onkeydown="if(event.key==='Enter')sendR(${id})"><button onclick="sendR(${id})">Send</button></div>`}
+ <div class="card tl"><div class="k">Timeline</div>
+ <div class="tli"><span class="tld" style="background:${SRC[l.src][1]}"></span><span>${first}</span></div>
+ <div class="tli"><span class="tld" style="background:var(--blue)"></span><span><b>Reply sent in 4 seconds</b></span></div>
+ ${pics.length?`<div class="tli"><span class="tld" style="background:#0e7490"></span><span><b>${pics.length} photo${pics.length>1?'s':''} received</b> · added to this lead</span></div>`:''}
+ <div class="tli"><span class="tld" style="background:var(--grn)"></span><span><b>${l.low?'Filed as low priority':'Summary sent to you'}</b> ${l.low?'':'by text'+(u?' · urgent alert':'')}</span></div></div>
+ <h3>Status</h3><div class="card pad"><select aria-label="Lead status" onchange="setStatus(${id},this.value)">${['New','Contacted','Quote sent','Booked','Lost'].map(s=>`<option ${s===l.status?'selected':''}>${s}</option>`).join('')}</select>
+ <p class="note">Pricing is never quoted automatically. You provide the estimate.</p>
+ <div class="more">${l.low?`<button class="btn bq" onclick="markSpam(${id},0)">Move back to inbox</button>`:`<button class="btn bq" onclick="markSpam(${id},'vendor')">Mark as vendor</button><button class="btn bq" onclick="markSpam(${id},'spam')">Mark as spam</button>`}</div></div>
+ <h3>Internal notes</h3><div class="card pad"><textarea id="nt" aria-label="Internal notes" placeholder="Only your team sees this…">${l.note||''}</textarea><button class="btn bs" style="margin-top:8px;width:100%" onclick="biz.leads.find(x=>x.id===${id}).note=$('#nt').value;toast('Note saved')">Save note</button></div>
+ <div class="demo">Demo data</div>`;
+ show('detail')}
+function useQR(i){const r=$('#rep');r.value=QR[i][1].replace('{o}',biz.owner);r.focus()}
+function markSpam(id,k){const l=biz.leads.find(x=>x.id===id);if(k){l.low=true;l._c=l._c||l.chips;l.chips=[k]}else{l.low=false;l.chips=l._c||['new']}renderList();openLead(id);toast(k?'Moved to low priority':'Moved back to inbox')}
+function setStatus(id,s){const l=biz.leads.find(x=>x.id===id);l.status=s;renderList();toast(s==='Booked'?'✓ Marked as booked':'Status: '+s);if($('#v-detail').classList.contains('on'))openLead(id)}
+function sendR(id){const v=$('#rep').value.trim();if(!v)return;const l=biz.leads.find(x=>x.id===id);l.conv.push(['o',v]);if(l.status==='New')l.status='Contacted';renderList();openLead(id);toast('Reply sent to '+l.name.split(' ')[0]);$('#chat').lastElementChild.scrollIntoView({block:'center'})}
+/* lightbox */
+let lb={l:null,i:0};
+function openLb(id,i){lb={l:biz.leads.find(x=>x.id===id),i};drawLb();$('#lbx').classList.add('on');$('#lbx .x').focus()}
+function drawLb(){const p=lb.l.pics,k=p[lb.i];$('#lbt').textContent=PL[k];$('#lbs').textContent=' · '+(lb.i+1)+' of '+p.length;
+ $('#lbim').innerHTML=(p.length>1?`<button class="ar l" aria-label="Previous photo" onclick="lbGo(-1)">‹</button>`:'')+psvg(k,lb.i)+(p.length>1?`<button class="ar r" aria-label="Next photo" onclick="lbGo(1)">›</button>`:'');
+ $('#lbf').textContent=`From ${lb.l.name.split(' ·')[0]} · Mon Oct 26, ${lb.l.time} · ${lb.l.src==='chat'||lb.l.src==='form'?'Website upload':'MMS'}`}
+function lbGo(d){const n=lb.l.pics.length;lb.i=(lb.i+d+n)%n;drawLb()}
+function closeLb(){$('#lbx').classList.remove('on')}
+(()=>{let x0=null;const im=$('#lbim');im.addEventListener('pointerdown',e=>x0=e.clientX);im.addEventListener('pointerup',e=>{if(x0!==null&&Math.abs(e.clientX-x0)>40)lbGo(e.clientX<x0?1:-1);x0=null})})();
+/* biz switcher */
+function renderBizMenu(){$('#bizmenu').innerHTML=BIZ.map((b,i)=>`<button role="menuitemradio" aria-checked="${b===biz}" class="${b===biz?'on':''}" onclick="setBiz(${i})"><span class="logo">${b.ini}</span><span><b>${b.name}</b><small>${b.trade} · ${b.area}</small></span>${b===biz?'<span style="margin-left:auto;color:var(--blue)">✓</span>':''}</button>`).join('')+`<button class="add" onclick="closeBiz();toast('Add a business: demo only')">+ Add a business</button>`}
+function toggleBiz(){const m=$('#bizmenu'),o=!m.classList.contains('on');renderBizMenu();m.classList.toggle('on',o);$('#bizbtn').setAttribute('aria-expanded',o)}
+function closeBiz(){$('#bizmenu').classList.remove('on');$('#bizbtn').setAttribute('aria-expanded',false)}
+function setBiz(i){biz=BIZ[i];closeBiz();$('#bname').textContent=biz.name;$('#blogo').textContent=biz.ini;$('#barea').textContent=biz.area;document.title=biz.name+' · Wingman';filter='all';src='all';$('#srcsel').value='all';renderList();renderToday();renderAlerts();renderSettings();show(cur==='detail'?'inbox':cur,true);toast('Switched to '+biz.name)}
+document.addEventListener('click',e=>{if(!e.target.closest('.top'))closeBiz()});
+function dismissA2(){$('#a2hs').remove();try{localStorage.setItem('rd-a2','1')}catch(e){}}
+try{if(localStorage.getItem('rd-a2'))$('#a2hs').remove()}catch(e){}
+/* Today */
+let FUH=4;
+function renderToday(){const sr=biz.id==='sr';const d=sr?[9,14,11,17,13,22,19]:[3,5,2,6,4,7,5],days=['Tue','Wed','Thu','Fri','Sat','Sun','Today'],mx=Math.max(...d)+2,W=320,H=120;
+ const pts=d.map((v,i)=>[20+i*(W-40)/6,H-15-v/mx*(H-30)]);
+ const bars=d.map((v,i)=>`<rect x="${pts[i][0]-11}" y="${pts[i][1]}" width="22" height="${H-15-pts[i][1]}" rx="5" fill="${i===6?'#2563eb':'#bfdbfe'}"/><text x="${pts[i][0]}" y="${pts[i][1]-4}" font-size="10" text-anchor="middle" fill="#475569" font-weight="600">${v}</text><text x="${pts[i][0]}" y="${H}" font-size="10" text-anchor="middle" fill="#5b6b80">${days[i]}</text>`).join('');
+ const fu=biz.leads.filter(l=>!l.low&&l.wait>=FUH);
+ const cnt=s=>biz.leads.filter(l=>l.src===s).length;
+ $('#v-today').innerHTML=`<h2>Today</h2><div class="stats">
+ <div class="card st wide"><div class="k">Est. revenue recovered (this week)</div><div class="v">${sr?'$38,400':'$6,150'}</div><div class="d">${sr?'From 9 leads you would have missed':'From 3 leads you would have missed'}</div></div>
+ <div class="card st"><div class="k">New inquiries</div><div class="v">${d[6]}</div><div class="d">↑ vs. last Mon</div></div>
+ <div class="card st u"><div class="k">Urgent</div><div class="v">${biz.leads.filter(l=>isU(l)&&!l.low).length}</div><div class="d" style="color:var(--org)">${biz.leads.filter(l=>isU(l)&&l.status==='New').length} awaiting your call</div></div></div>
+ <h3>Follow-up reminders</h3><div class="card">${fu.length?fu.map(l=>`<div class="fu" role="button" tabindex="0" onclick="openLead(${l.id})"><div class="av" style="background:${l.col}">${ini(l.name)}</div><div style="min-width:0"><b style="font-size:14px">${l.name.split(' ·')[0]}</b><small>${l.status} · no reply from customer</small></div><span class="w">${l.wait>=24?Math.floor(l.wait/24)+'d':l.wait+'h'} quiet</span></div>`).join(''):`<div class="empty" style="padding:20px">No follow-ups due. Nice work.</div>`}
+ <div class="row"><div>Remind me after<small>No customer reply for this long</small></div><select aria-label="Reminder delay" onchange="FUH=+this.value;renderToday()">${[2,4,24].map(h=>`<option value="${h}" ${h===FUH?'selected':''}>${h<24?h+' hours':'1 day'}</option>`).join('')}</select></div></div>
+ <h3>By channel</h3><div class="card pad" style="padding-top:6px;padding-bottom:6px">${['call','text','chat','form'].map(s=>`<div class="bar"><span>${sic(s)}</span><span class="tk"><i style="width:${cnt(s)/biz.leads.length*100}%;background:${SRC[s][1]}"></i></span><b>${cnt(s)}</b></div>`).join('')}</div>
+ <h3>Inquiries · last 7 days</h3><div class="card pad"><svg viewBox="0 0 ${W} ${H+4}" width="100%" role="img" aria-label="Inquiries per day">${bars}</svg></div>
+ <div class="grid2"><div class="card kv"><div class="k">Avg. reply time</div><div class="v" style="font-size:22px">4 sec</div></div><div class="card kv"><div class="k">Your avg. callback</div><div class="v" style="font-size:22px">11 min</div></div></div>
+ <div class="demo">Demo data · Mon Oct 26</div>`}
+/* Alerts */
+const tg=(on,msg)=>`<button class="tg ${on?'on':''}" role="switch" aria-checked="${!!on}" aria-label="${msg}" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on'));toast('${msg} '+(this.classList.contains('on')?'on':'off'))"></button>`;
+function renderAlerts(){const u=biz.leads.find(isU);$('#v-alerts').innerHTML=`<h2>Alerts</h2><div class="lock"><div class="dt">Monday, October 26</div><div class="tm">2:41</div>
+${u?`<div class="ntf"><div class="h"><b>💬 ${biz.name} Leads</b><span>now</span></div><p><b>NEW LEAD (URGENT):</b> ${u.name}, ${u.town}. ${u.issue}. Tap to call ${u.ph}.</p></div>`:''}</div>
+<h3>How you're notified</h3><div class="card">
+<div class="row"><div>Text message<small>(775) 555-0105 · ${biz.owner}'s cell</small></div>${tg(1,'Text alerts')}</div>
+<div class="row"><div>Email<small>${biz.owner.toLowerCase()}@${biz.id}.example</small></div>${tg(1,'Email alerts')}</div>
+<div class="row"><div>Daily summary<small>Every evening at 6:00 PM</small></div>${tg(1,'Daily summary')}</div></div>
+<h3>Quiet hours</h3><div class="card">
+<div class="row"><div>Quiet hours<small>9:00 PM – 6:30 AM</small></div>${tg(1,'Quiet hours')}</div>
+<div class="row"><div>Urgent leads bypass quiet hours<small>Emergencies and repeat complaints</small></div>${tg(1,'Urgent bypass')}</div>
+<div class="row"><div>Low priority & vendors<small>Included in daily summary only</small></div><span class="val">Summary only</span></div></div>
+<div class="demo">Demo data</div>`}
+/* Settings */
+const HRS=[['Mon','07:00','17:00'],['Tue','07:00','17:00'],['Wed','07:00','17:00'],['Thu','07:00','17:00'],['Fri','07:00','17:00'],['Sat','08:00','12:00'],['Sun',null,null]];
+const SNIP=()=>`<script src="https://widget.replydesk.example/v1.js"\n  data-business="${biz.id}-demo" async><\/script>`;
+function renderSettings(){$('#v-settings').innerHTML=`<h2>Settings</h2>
+<h3 style="margin-top:4px">Business profile</h3><div class="card">
+<div class="row"><div>Business name</div><span class="val">${biz.name}</span></div>
+<div class="row"><div>Business number</div><span class="val">${biz.num}</span></div>
+<div class="fld"><label for="ftr">Trade</label><select id="ftr" onchange="biz.trade=this.value;biz.noun={Roofing:'roof',HVAC:'heating or AC',Landscaping:'yard',Plumbing:'plumbing',Electrical:'electrical'}[this.value];upG()">${['Roofing','HVAC','Landscaping','Plumbing','Electrical'].map(t=>`<option ${t===biz.trade?'selected':''}>${t}</option>`).join('')}</select></div>
+<div class="fld" style="border:0"><label for="fto">Tone</label><select id="fto" onchange="biz.tone=this.value;upG()">${Object.entries(TONE).map(([k,v])=>`<option value="${k}" ${k===biz.tone?'selected':''}>${v}</option>`).join('')}</select></div></div>
+<h3>Greeting preview</h3><div class="card pad"><div class="greet" id="gp">${greeting(biz)}</div><p class="note" style="text-align:right">Sent ~4 sec after a missed call or new message</p></div>
+<h3>Services</h3><div class="card pad"><div class="tags">${biz.services.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+<h3>Service area</h3><div class="card pad"><div class="tags">${biz.towns.map(t=>`<span class="tag">📍 ${t}</span>`).join('')}</div></div>
+<h3>Where inquiries come from</h3><div class="card">
+<div class="ch"><span class="ic" style="background:var(--redl);color:var(--red)">${sic('call',0)}</span><div><b>Missed calls</b><small>Unanswered calls forward here and get a text back. Setup below.</small></div><span class="on">● On</span></div>
+<div class="ch"><span class="ic" style="background:var(--bluel)">${sic('text',0)}</span><div><b>Texts to ${biz.num}</b><small>Customers who text your business number, including photos.</small></div><span class="on">● On</span></div>
+<div class="ch" style="border:0"><span class="ic" style="background:var(--purl)">${sic('chat',0)}</span><div><b>Website chat & form</b><small>Add the chat bubble to your site. Form submissions arrive here too.</small></div><span class="on">● On</span></div>
+<div class="site" aria-label="Website preview"><div class="bar1"><i></i><i></i><i></i><span>${biz.id}-demo.example</span></div><div class="hero"><div class="h">${biz.name}</div><div class="l"></div><div class="l" style="width:45%"></div><div class="l" style="width:52%"></div>
+<div class="wdg"><div class="pnl"><div class="ph">${biz.name}</div><div class="bd"><div>${`Hi, this is ${biz.name}. What can we help you with today?`}</div></div><div class="in" role="button" tabindex="0" onclick="openTry()">Type a message…</div></div><div class="bub">💬</div></div></div></div>
+<div class="note" style="margin:0 12px 6px">Paste before &lt;/body&gt; on your site (sample code):</div>
+<button class="btn bs tylink" onclick="openTry()">💬 Try the chat as a customer</button>
+<pre class="snip" id="snip">${SNIP().replace(/</g,'&lt;')}</pre>
+<div style="padding:0 12px 12px"><button class="btn bs" style="width:100%" onclick="copySnip()">Copy embed code</button></div></div>
+<h3>Business hours</h3><div class="card" style="padding:6px 0">${HRS.map(([d,a,b],i)=>`<div class="hrs"><b>${d}</b>${a?`<input type="time" aria-label="${d} open" value="${a}" onchange="HRS[${i}][1]=this.value"><span>–</span><input type="time" aria-label="${d} close" value="${b}" onchange="HRS[${i}][2]=this.value">`:`<span class="cl">Closed</span>`}<button class="tg ${a?'on':''}" role="switch" aria-checked="${!!a}" aria-label="${d} open" onclick="HRS[${i}][1]=HRS[${i}][1]?null:'08:00';HRS[${i}][2]=HRS[${i}][1]?'17:00':null;renderSettings();document.querySelectorAll('.hrs .tg')[${i}].focus()"></button></div>`).join('')}
+<p class="note" style="padding:4px 14px 8px">Customers asking for times outside these hours are guided to open hours.</p></div>
+<h3>Photos</h3><div class="card"><div class="row"><div>Ask customers for photos<small>When damage is mentioned, the reply asks for a couple of photos. They appear on the lead.</small></div>${tg(1,'Photo requests')}</div></div>
+<h3>Never discuss</h3><div class="card">
+<div class="row"><div>Pricing & estimates<small>Replies: "The owner will put together your estimate."</small></div>${tg(1,'No pricing')}</div>
+<div class="row"><div>Confirming exact times<small>You confirm all appointments</small></div>${tg(1,'Exact times')}</div>
+<div class="row"><div>Competitors & insurance decisions</div>${tg(1,'Competitor rule')}</div></div>
+<div class="pricebox">💡 Replies never give a price. Customers are told the owner will provide the estimate.</div>
+<h3>Languages</h3><div class="card">
+<div class="row"><div>English</div>${tg(1,'English')}</div>
+<div class="row"><div>Spanish<small>Replies in Spanish, translation shown to you</small></div>${tg(1,'Spanish')}</div></div>
+<h3>Call forwarding</h3><div class="card fwd"><div class="ok">● Forwarding active</div>
+<p class="note">Unanswered calls forward to your text-back line (775) 555-0199.</p>
+<ol class="steps"><li>From your business phone, dial <span class="code">*71 775 555 0199</span></li><li>Wait for the confirmation tone, then hang up</li><li>To turn off, dial <span class="code">*73</span></li></ol>
+<p class="note" style="margin:-4px 0 4px">Others: AT&T <span class="code">*92</span> · T-Mobile <span class="code">**61*</span></p>
+<p class="note" style="margin:0 0 12px;font-weight:600">Typical codes. Confirm with your carrier.</p>
+<button class="btn bp" style="width:100%" id="tc" onclick="testCall()">📞 Send test call</button><div class="testres" id="tr">✓ Test call missed at 2:47 PM → text sent in 3 seconds. You're all set.</div></div>
+<h3>Compliance</h3><div class="card"><div class="row"><div>Opted out (STOP)<small>These numbers never receive texts</small></div><span class="val">7 ›</span></div><div class="row"><div>Blocked numbers</div><span class="val">3 ›</span></div></div>
+<div class="demo">Demo data · ${biz.name} is a fictional business</div>`}
+function upG(){$('#gp').textContent=greeting(biz);toast('Greeting updated')}
+function copySnip(){const t=SNIP();(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Embed code copied'),()=>toast('Select the code to copy'))}
+function testCall(){const b=$('#tc');b.textContent='Calling '+biz.num+'…';b.disabled=true;setTimeout(()=>{b.textContent='✓ Test passed';b.className='btn bg';b.style.width='100%';$('#tr').style.display='block';toast('Test call successful')},1400)}
+/* ===== Try it: scripted demo (no network) ===== */
+const TYC=[
+['Home services','a','hm',`Roofing|Sierra Roofing|roof|There's water coming through my ceiling|How much for a new roof?
+HVAC|Truckee Heating & Air|heating or AC|We have no heat and it's freezing|How much is a new furnace?
+Plumbing|Washoe Valley Plumbing|plumbing|A pipe burst and it's flooding the basement|How much for a new water heater?
+Electrical|Comstock Electric|electrical|Half my outlets stopped working|What do you charge per hour?
+Landscaping|High Desert Landscapes|yard|I want to redo my backyard|How much for new sod?
+Lawn care|Greenline Lawn Care|lawn|Need weekly mowing starting next week|What's the price for mowing?
+Tree service|Tall Pines Tree Service|trees|A tree fell on my fence in the storm|How much to remove a big pine?
+Pest control|Basin Pest Control|pest problem|We've got mice in the kitchen|How much is a treatment?
+Pool service|Clearwater Pool Care|pool|My pool turned green|What's your monthly rate?
+Garage doors|Summit Garage Doors|garage door|My garage door is stuck open|How much for a new spring?
+Painting|Fresh Coat Painting|painting project|Need my house exterior painted|How much to paint a 3 bedroom?
+Flooring|Truckee Floor Co.|floors|Looking to put in hardwood|What's the cost per square foot?
+Handyman|Handy Hank's|project|I need a few shelves and a door fixed|What's your hourly rate?
+House cleaning / maid|Sparkle Maid Co.|cleaning|Need a deep clean before guests arrive|How much for a 2 bedroom?
+Window cleaning|Clear View Windows|windows|Need all my windows done|How much for a two-story?
+Pressure washing|Blast Pro Washing|pressure washing|Want my driveway and deck washed|How much for a driveway?
+Fencing|Ponderosa Fence|fence|Wind knocked down part of my fence|Price per foot for vinyl fence?
+Concrete|Granite State Concrete|concrete|My driveway is cracked badly|How much for a new patio?
+Remodeling / general contractor|Carson Valley Builders|remodel|Thinking about a kitchen remodel|Ballpark for a kitchen remodel?
+Solar installation|Sunpeak Solar|solar|Interested in solar panels|How much does solar cost?
+Septic|Valley Septic|septic|Sewage is backing up into the yard|How much to pump a tank?
+Junk removal|Haul-It Junk Removal|junk|Need a garage full of stuff hauled|How much for a full truck?
+Moving|Two Rivers Moving|move|Moving a 3 bedroom next month|How much for a local move?
+Locksmith|Keyline Locksmith|lock|I'm locked out of my house|How much to unlock a door?
+Appliance repair|Fixright Appliance|appliance|My fridge stopped cooling|How much for a service call?
+Carpet cleaning|Fresh Step Carpet Care|carpets|Need carpets cleaned in 4 rooms|Price per room?
+Gutters|Rainline Gutters|gutters|Gutters are overflowing and pulling off|How much for new gutters?
+Insulation|Snug Home Insulation|insulation|The upstairs is always cold|How much to insulate an attic?
+Chimney|Top Hat Chimney|chimney|Smoke comes in when we light the fireplace|How much is a chimney sweep?`],
+['Automotive','','au',`Auto repair|Mountain View Auto|car|My check engine light is on|How much for brakes?
+Body shop|Precision Collision|car|Someone backed into my bumper|How much to fix a dent?
+Detailing|Showroom Mobile Detailing|car|Want a full interior detail|How much for a full detail?
+Towing|Route 50 Towing|vehicle|My car broke down and I'm stranded on the highway|How much for a tow?
+Tire shop|Tread Right Tires|tires|I've got a flat and need a new tire|How much for 4 tires?
+Car dealership|Silver State Motors|car|Interested in the used truck on your lot|What's your best price on it?
+RV repair|Open Road RV Service|RV|My RV slide-out won't retract|How much for an inspection?`],
+['Health & wellness','','hl',`Dentist|Carson Smiles|tooth|My tooth is really hurting|How much is a cleaning?
+Chiropractor|Align Chiropractic|back|My lower back has been killing me|How much is a visit?
+Physical therapy|Motion PT|recovery|Need PT after knee surgery|How much per session?
+Med spa|Glow Med Spa|treatment|Interested in a facial|How much for Botox?
+Dermatology|Clear Skin Dermatology|skin|I have a mole I want checked|How much for a skin check?
+Optometry|Bright Eyes Optometry|eyes|Need an eye exam and new glasses|How much is an exam?
+Veterinarian|Paws & Pines Vet|pet|My dog is limping|How much is an exam?
+Massage|Kneaded Massage|massage|Want to book a deep tissue massage|How much for 90 minutes?
+Mental health counseling|Riverside Counseling|counseling|I'd like to start therapy|How much per session?
+Urgent care (non-emergency)|Lakeside Urgent Care|visit|I think I have a sinus infection|How much without insurance?
+Hearing aids|ClearSound Hearing|hearing|I'm having trouble hearing on the phone|How much are hearing aids?
+Gym / personal training|Iron Peak Fitness|training|I want to start personal training|How much per month?
+Yoga / pilates|Still Lake Yoga|classes|I'm new and want to try a class|How much is a class pack?`],
+['Beauty','','bt',`Hair salon|Studio Sage Salon|hair|I want a cut and color|How much for highlights?
+Barber|Old Town Barbers|cut|Need a fade this week|How much for a cut and beard?
+Nail salon|Polished Nail Bar|nails|Want gel nails for a wedding|How much for a gel set?
+Lash / brow|Lash Lane Studio|lashes|Interested in lash extensions|How much for a full set?
+Tattoo / piercing|Black Pine Tattoo|tattoo|I want a forearm tattoo|How much for a palm-sized piece?
+Day spa|Willow Day Spa|spa day|Want a couples spa package|How much for the couples package?`],
+['Professional services','','pr',`Law firm|Harmon & Reed Law|legal matter|I need help with a landlord dispute|How much is a consultation?
+Accounting / tax|Ledger Lane Tax|taxes|I need help filing back taxes|How much for a tax return?
+Real estate agent|Summit Realty Group|home search|Looking to sell my house this spring|What's your commission?
+Property management|Keystone Property Management|property|Need someone to manage my rental|What's your management fee?
+Mortgage broker|Peak Home Loans|loan|Looking to refinance|What rate can I get?
+Insurance agent|Sagebrush Insurance|coverage|Need a new auto policy|How much would a policy cost?
+Financial advisor|Northstar Financial|planning|I want help planning for retirement|What are your fees?
+Notary|Mobile Notary Pros|documents|Need a document notarized|How much per signature?
+Architect|Linework Architecture|project|Planning an addition on my house|How much for drawings?
+Photography|Golden Hour Photo|shoot|Need family photos this fall|How much for a session?
+Marketing agency|Brightpath Marketing|marketing|Need help with our website and ads|How much per month?
+IT services|Byte Fix IT|computer|Our office network keeps dropping|What's your hourly rate?`],
+['Food & events','','fd',`Restaurant|The Tamarack Grill|visit|Do you have room for a party of 12 Friday?|How much is the private room?
+Catering|Basil & Brine Catering|event|Need catering for 80 people|How much per person?
+Bakery|Rise & Shine Bakery|order|I need a custom birthday cake|How much for a 2-tier cake?
+Food truck|Rolling Taco Co.|event|Want the truck at our company picnic|How much to book the truck?
+Wedding venue|Aspen Meadow Venue|wedding|Looking at dates for next June|How much is a Saturday?
+Event rentals|Party Peak Rentals|event|Need tables and a tent for a party|How much for a 20x40 tent?
+DJ|Night Owl DJ Co.|event|Need a DJ for a wedding|How much for 5 hours?
+Florist|Wildflower Floral|flowers|Need flowers for a funeral service|How much for an arrangement?`],
+['Education & kids','','ed',`Tutoring|Bright Minds Tutoring|tutoring|My son needs help with algebra|How much per hour?
+Daycare|Little Pines Daycare|childcare|Looking for full-time care for my toddler|What's the weekly rate?
+Music lessons|Harmony Music Studio|lessons|Want piano lessons for my daughter|How much per lesson?
+Driving school|Green Light Driving School|lessons|My teen needs driving lessons|How much for the package?
+Dance studio|Encore Dance Studio|classes|Looking for a ballet class for a 6 year old|How much per month?
+Martial arts|Red Rock Martial Arts|classes|Interested in kids karate|How much is membership?`],
+['Pets','','pt',`Pet grooming|Fluff & Fold Grooming|grooming|My doodle needs a full groom|How much for a large dog?
+Pet boarding|Happy Tails Boarding|boarding|Need boarding for 2 dogs over Thanksgiving|How much per night?
+Dog training|Good Dog Training|training|My puppy pulls on the leash|How much for a class?`],
+['Other','','ot',`Storage / warehousing|Basin Logistics Storage|storage|Need space for business inventory|How much per pallet?
+Self-storage|Lockbox Self Storage|unit|Need a 10x10 unit next week|How much is a 10x10?
+Hotel / vacation rental|Tahoe Pines Lodge|stay|Looking for a cabin for 4 nights in December|How much per night?
+Funeral home|Evergreen Funeral Home|arrangements|My father passed and I need to make arrangements|How much is a service?
+Church|Valley Community Church|visit|I'd like to talk to someone about a baptism|Is there a fee for weddings?
+Nonprofit|High Sierra Food Share|program|I'd like to volunteer|How much should I donate?
+Other (type your own)|My Business|request|I'd like to set something up|How much does it cost?`]];
+const ADDR={Roofing:1,HVAC:1,Plumbing:1,Electrical:1,Towing:'Where is the vehicle right now?',Detailing:'Where should we meet you? We\'re mobile.','RV repair':'Where is the RV parked?','Real estate agent':'What\'s the property address?','Property management':'What\'s the property address?',Notary:'Where should we meet you?',Catering:'Where is the event?','Event rentals':'Where is the event?',DJ:'Where is the event?','Food truck':'Where is the event?',Florist:'Where should the flowers go?'};
+const TYB=[];TYC.forEach(([cat,a,code,txt])=>txt.split('\n').forEach((ln,i)=>{const [label,name,noun,ex,price]=ln.split('|');TYB.push({id:code+i,cat,label,name,noun,ex,price,addr:a?'What\'s the address there?':(typeof ADDR[label]==='string'?ADDR[label]:null)})}));
+const HOURS={hm:[7,17,'Mon–Fri 7 AM–5 PM and Sat 8 AM–noon'],au:[8,18,'Mon–Fri 8 AM–6 PM and Sat 9 AM–2 PM'],hl:[8,17,'Mon–Fri 8 AM–5 PM'],bt:[9,19,'Tue–Sat 9 AM–7 PM'],pr:[9,17,'Mon–Fri 9 AM–5 PM'],fd:[10,21,'every day 10 AM–9 PM'],ed:[9,18,'Mon–Fri 9 AM–6 PM'],pt:[7,19,'every day 7 AM–7 PM'],ot:[9,17,'Mon–Fri 9 AM–5 PM']};
+const GREET={hm:(b)=>`Hey, this is ${b.name}. We're out on a job right now, so I'm covering the phones. What's going on with your ${b.noun}?`,
+au:(b)=>`Hey, this is ${b.name}. The guys are under a car right now, so I'm covering the phones. What's going on?`,
+hl:(b)=>`Hey, this is ${b.name}. We're with a patient right now, so I'm covering the phones. What's going on?`,
+bt:(b)=>`Hi, this is ${b.name}! We're with a client right now, so I'm covering the phones. What can we do for you?`,
+pr:(b)=>`Hi, this is ${b.name}. We're tied up with a client at the moment, so I'm covering the phones. How can we help?`,
+fd:(b)=>`Hey, this is ${b.name}! It's busy here, so I'm covering the phones. What can we do for you?`,
+ed:(b)=>`Hi, this is ${b.name}. We're in a session right now, so I'm covering the phones. What are you looking for?`,
+pt:(b)=>`Hi, this is ${b.name}! We've got our hands full of pups right now, so I'm covering the phones. What can we help with?`,
+ot:(b)=>`Hi, this is ${b.name}. Nobody's at the desk right this second, so I'm covering the phones. How can we help?`};
+const OWN={hl:'the office',bt:'the team',pr:'the office',fd:'the manager',ed:'the director',ot:'the office'};
+const EMERG=/\b(leak\w*|flood\w*|burst|no heat|no ac|no a\/c|gas smell|smell(s|ing)? (of )?gas|sparks?|sparking|smoke|fire|sewage|backing up|no power|stranded|accident|crash|locked out|bleeding|swollen|swelling|severe|emergency|urgent|asap|fell on|collapsed?|passed away|passed)\b/i;
+const OFF=/\b(sex\w*|nude|porn|drugs?|weed|bitcoin|crypto|hack\w*|password|joke|poem|song|homework|essay|politic\w*|election|president|weather|stupid|idiot|fuck\w*|shit|bitch|kill|weapon|gun|recipe|lottery|are you a (bot|robot|computer|real person))\b/i;
+const PRICE=/(how much|price|pricing|cost|costs|quote|estimate|ballpark|\$|\brates?\b|charge|fees?\b|commission|cheap)/i;
+const STOP=/^\s*(stop|unsubscribe|stop all|end|quit|cancel)\s*[.!]*\s*$/i;
+const PHONE=/(\+?1[\s.-]?)?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})/;
+const TIMEW=/\b(today|tonight|tomorrow|asap|now|right away|mon(day)?|tue(s|sday)?|wed(nesday)?|thu(rs|rsday)?|fri(day)?|sat(urday)?|sun(day)?|weekend|weekday\w*|morning|afternoon|evening|noon|midnight|anytime|any time|next week|this week|\d{1,2}(:\d\d)?\s*(am|pm|a\.m\.|p\.m\.)|at \d{1,2}(:\d\d)?)\b/i;
+const ADDRW=/\b\d{1,6}\s+[A-Za-z0-9.' ]+\b(st|street|ave|avenue|rd|road|dr|drive|ct|court|ln|lane|way|blvd|pl|place|cir|circle|hwy|highway|trail|loop|pkwy)\b\.?|\b(hwy|highway|i-?80|i-?580|exit|mile marker)\b/i;
+const NAMEW=/\b(?:[Mm]y name is|[Nn]ame's|[Nn]ame is|I'm|[Ii]m|I am|[Tt]his is|[Ii]t's)\s+([A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)?)/;
+const NOTNAME=/^(hi|hey|yes|no|ok|okay|sure|thanks|hello|good|fine|not|having|looking|calling|interested|locked|stranded|new|sorry|just|here)$/i;
+let TY={b:null,s:null,open:false,act:-1,custom:''};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function hrsOf(b){return HOURS[b.id.slice(0,2)]}
+function ownerOf(b){return OWN[b.id.slice(0,2)]||'the owner'}
+function renderTry(){$('#v-try').innerHTML=`<div class="tyhd"><h2>Try it</h2><button class="tyrs" onclick="tyReset()">↻ Restart</button></div>
+<p class="tyintro">You're the customer. Pick a business type, then text it like a real customer would.</p>
+<div class="tychat"><div class="tb"><span class="logo" id="tylogo">SR</span><div><b id="tyname">Sierra Roofing</b><small>● Replies in seconds</small></div></div>
+<div class="tylog" id="tylog" role="log" aria-live="polite" aria-label="Demo conversation"></div>
+<div class="tybar">
+<div class="cbx"><label id="tylbl" for="tycb">What type of business is this?</label><div class="w"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+<input id="tycb" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="tylist" autocomplete="off" placeholder="Search 90+ business types" value="Roofing"><button class="cv" tabindex="-1" aria-label="Show all business types" onclick="tyOpen(true,'');$('#tycb').focus()">▾</button></div>
+<div class="cbl" id="tylist" role="listbox" aria-labelledby="tylbl"></div></div>
+<div class="tyother" id="tyother"><input id="tyoin" aria-label="Type your business type" placeholder="e.g. Piano tuning"><button class="btn bp" onclick="tyCustom()">Use</button></div>
+<div class="tysl">Try saying (tap):</div><div class="tysug" id="tysug" role="group" aria-label="Try saying"></div>
+<form class="tyin" onsubmit="event.preventDefault();tySend()"><input id="tymsg" aria-label="Message as the customer" placeholder="Text as the customer…" autocomplete="off"><button aria-label="Send">➤</button></form>
+<div class="tynote">Demo: simulated replies · nothing is sent</div></div></div>
+<div class="owl" id="tyown" aria-live="polite"></div>`;
+ const cb=$('#tycb');cb.oninput=()=>tyOpen(true,cb.value);cb.onfocus=()=>{cb.select();tyOpen(true,'')};cb.onkeydown=tyKey;
+ cb.onblur=()=>setTimeout(()=>{if(!document.activeElement||document.activeElement.id!=='tycb'){tyOpen(false);cb.value=TY.b?TY.b.label:''}},150);
+ $('#tyoin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();tyCustom()}};
+ tyPick(TY.b||TYB[0],1)}
+function tyMatches(q){q=(q||'').toLowerCase().trim();return TYB.filter(b=>!q||b.label.toLowerCase().includes(q)||b.cat.toLowerCase().includes(q)||b.name.toLowerCase().includes(q))}
+function tyOpen(on,q){const l=$('#tylist'),cb=$('#tycb');TY.open=on;l.classList.toggle('on',on);cb.setAttribute('aria-expanded',on);if(!on){cb.removeAttribute('aria-activedescendant');return}
+ const m=tyMatches(q);TY.list=m;TY.act=m.length?0:-1;let h='',c='';
+ m.forEach((b,i)=>{if(b.cat!==c){if(c)h+='</div>';c=b.cat;h+=`<div role="group" aria-label="${esc(c)}"><div class="g" role="presentation">${esc(c)}</div>`}h+=`<div role="option" id="tyo-${i}" aria-selected="${i===0}" onmousedown="event.preventDefault()" onclick="tyChoose(${i})">${esc(b.label)}</div>`});
+ if(c)h+='</div>';l.innerHTML=h||'<div class="none">No matches. Try “Other (type your own)”.</div>';tyAct(TY.act)}
+function tyAct(i){const cb=$('#tycb');document.querySelectorAll('#tylist [role=option]').forEach((o,j)=>o.setAttribute('aria-selected',j===i));TY.act=i;
+ if(i<0){cb.removeAttribute('aria-activedescendant');return}const o=$('#tyo-'+i);cb.setAttribute('aria-activedescendant','tyo-'+i);o&&o.scrollIntoView({block:'nearest'})}
+function tyKey(e){const n=(TY.list||[]).length;
+ if(e.key==='ArrowDown'){e.preventDefault();if(!TY.open)return tyOpen(true,'');if(n)tyAct((TY.act+1)%n)}
+ else if(e.key==='ArrowUp'){e.preventDefault();if(n)tyAct((TY.act-1+n)%n)}
+ else if(e.key==='Enter'){e.preventDefault();if(TY.open&&TY.act>=0)tyChoose(TY.act)}
+ else if(e.key==='Escape'){e.stopPropagation();tyOpen(false);e.target.value=TY.b?TY.b.label:''}}
+function tyChoose(i){const b=TY.list[i];tyOpen(false);$('#tycb').value=b.label;
+ if(b.label.startsWith('Other')){$('#tyother').classList.add('on');$('#tyoin').focus();return}
+ $('#tyother').classList.remove('on');tyPick(b);$('#tymsg').focus()}
+function tyCustom(){const v=$('#tyoin').value.trim().replace(/[<>]/g,'');if(!v)return $('#tyoin').focus();const t=v.replace(/\b\w/g,c=>c.toUpperCase());
+ const b=Object.assign({},TYB.find(x=>x.label.startsWith('Other')),{label:t,name:'Lakeview '+t,noun:'request',ex:`I'm looking for help with ${v.toLowerCase()}`,price:`How much for ${v.toLowerCase()}?`});
+ $('#tycb').value=t;$('#tyother').classList.remove('on');tyPick(b);$('#tymsg').focus()}
+function tyPick(b,quiet){TY.b=b;tyReset();if(!quiet)toast('Now chatting with '+b.name)}
+function tyReset(){const b=TY.b;TY.s={issue:'',addr:'',name:'',phone:'',time:'',urgent:false,step:'',confirm:false,done:false,stopped:false};
+ $('#tyname').textContent=b.name;$('#tylogo').textContent=ini(b.name);$('#tylog').innerHTML='<div class="tm sys">Today · demo chat</div>';
+ const m=$('#tymsg');m.disabled=false;m.value='';
+ $('#tysug').innerHTML=[b.ex,b.price,'Can you come at midnight?','STOP'].map(t=>`<button type="button" onclick="tySend(this.textContent)">${esc(t)}</button>`).join('');
+ tySay(GREET[b.id.slice(0,2)](b),300);tyOwn()}
+function tyAdd(cls,t){const l=$('#tylog');const d=document.createElement('div');d.className='tm '+cls;d.textContent=t;l.appendChild(d);l.scrollTop=l.scrollHeight;return d}
+let tyQ=Promise.resolve();
+function tySay(t,ms){const b=TY.b;tyQ=tyQ.then(()=>new Promise(r=>{if(TY.b!==b)return r();const d=tyAdd('bz typing','•••');setTimeout(()=>{d.className='tm bz';d.textContent=t;$('#tylog').scrollTop=1e6;r()},ms||650)}))}
+function tySend(txt){const m=$('#tymsg');const t=(txt!=null?txt:m.value).trim();if(!t||m.disabled)return;m.value='';tyAdd('me',t);tyReply(t).forEach(r=>tySay(r));tyOwn()}
+function fmtPhone(x){const p=x.match(PHONE);return `(${p[2]}) ${p[3]}-${p[4]}`}
+function afterHours(t,b){const [o,c]=hrsOf(b),s=t.toLowerCase();if(/midnight|tonight|late night|overnight/.test(s))return true;
+ if(/\bsun(day)?\b/.test(s)&&!/every day/.test(hrsOf(b)[2]))return true;const m=s.match(/\b(\d{1,2})(?::(\d\d))?\s*(am|pm|a\.m\.|p\.m\.)/);if(m){let h=+m[1]%12;if(m[3][0]==='p')h+=12;return h<o||h>=c}return false}
+function tyNext(){const s=TY.s,b=TY.b,hr=hrsOf(b)[2];
+ if(!s.issue){s.step='issue';return `What can we help you with?`}
+ if(b.addr&&!s.addr){s.step='addr';return b.addr}
+ if(!s.name){s.step='name';return `Got it. Who am I speaking with?`}
+ if(!s.phone){s.step='phone';return `Thanks, ${s.name.split(' ')[0]}. What's the best number to reach you?`}
+ if(!s.time){s.step='time';return `When's a good time for ${ownerOf(b)} to call you back? We're open ${hr}.`}
+ s.step='confirm';s.confirm=true;return `So that's ${s.issue.replace(/[.!?]+$/,'').replace(/^(\w)(?=[a-z])/,c=>c.toLowerCase())}${s.addr?' at '+s.addr:''}, ${s.name} at ${s.phone}, ${s.time}. Right?`}
+function tyReply(t){const s=TY.s,b=TY.b,out=[];
+ if(s.stopped)return [];
+ if(STOP.test(t)){s.stopped=true;$('#tymsg').disabled=true;return ["You're all set, we won't text you again."]}
+ if(OFF.test(t)){out.push("Sorry, I can't help with that.");if(s.step&&!s.done)out.push(tyNext());return out}
+ if(s.done){if(PRICE.test(t))return [`The ${ownerOf(b)==='the owner'?'owner':ownerOf(b).slice(4)} will go over estimate details when ${ownerOf(b)==='the owner'?'he calls':'they call'}.`];return ["Got it, I've added that to your note for "+ownerOf(b)+"."]}
+ if(s.confirm){if(/^\s*(y|yes|yeah|yep|yup|correct|right|that's right|sounds good|perfect|ok|okay|sure)\b/i.test(t)){s.done=true;s.confirm=false;return [`Perfect. I've sent this to ${ownerOf(b)}${s.urgent?' and marked it urgent':''}. Expect a call ${s.time}. Thanks, ${s.name.split(' ')[0]}!`]}
+  const before=JSON.stringify(s);const ph=t.match(PHONE);if(ph)s.phone=fmtPhone(t);if(ADDRW.test(t)&&b.addr)s.addr=t.replace(/^(it's|it is|address is|at)\s+/i,'');const nm=t.match(NAMEW);if(nm)s.name=nm[1];if(TIMEW.test(t)&&!ph){if(afterHours(t,b))return [`We're open ${hrsOf(b)[2]}. What time in there works for you?`];s.time=t.replace(/^(how about|maybe|let's do)\s+/i,'')}
+  if(JSON.stringify(s)===before){s.confirm=false;return ["No problem, what should I fix?"]}return [tyNext()]}
+ const isPrice=PRICE.test(t),emer=EMERG.test(t);
+ if(emer&&!s.urgent){s.urgent=true;out.push(`Got it, I'm flagging this as urgent for ${ownerOf(b)} right now.`)}
+ if(isPrice)out.push(`${ownerOf(b)==='the owner'?'The owner':ownerOf(b).replace(/^the/,'The')} will go over estimate details when ${ownerOf(b)==='the owner'?'he calls':'they call'}.`);
+ let used=false;const first=!s.issue;const ph=t.match(PHONE);if(ph&&!s.phone){s.phone=fmtPhone(t);used=true}
+ const nm=t.match(NAMEW);if(nm&&!s.name&&!NOTNAME.test(nm[1].split(' ')[0])){s.name=nm[1];used=true}
+ if(b.addr&&!s.addr&&!isPrice&&!OFF.test(t)&&(first?/\b\d{1,6}\s+\w+.*\b(st|street|ave|rd|dr|ct|ln|way|blvd)\b/i.test(t):(ADDRW.test(t)||(s.step==='addr'&&/\d|\w+\s+\w+/.test(t)&&!ph&&!NAMEW.test(t))))){s.addr=t.replace(/^(it's|it is|the address is|address is|we're at|i'm at|at)\s+/i,'').trim().replace(/[.]$/,'');used=true}
+ if(TIMEW.test(t)&&!ph&&!first&&(s.step==='time'||(!isPrice&&s.issue&&!s.time))){if(afterHours(t,b)){out.push(`We're open ${hrsOf(b)[2]}. What time in there works for you?`);s.step='time';return out}if(!s.time){s.time=t.replace(/^(how about|maybe|let's do|can you (come|call)( at)?)\s+/i,'').replace(/[?.!]+$/,'');used=true}}
+ else if(TIMEW.test(t)&&!ph&&afterHours(t,b)&&!s.issue){out.push(`We're open ${hrsOf(b)[2]}. Before we pick a time, what can we help you with?`);return out}
+ if(!used&&s.step==='name'&&!s.name&&/^[A-Za-z][A-Za-z'-]+(\s+[A-Za-z][A-Za-z'-]+){0,2}[.!]?$/.test(t)&&!NOTNAME.test(t.split(' ')[0])){s.name=t.replace(/[.!]$/,'').replace(/\b\w/g,c=>c.toUpperCase());used=true}
+ if(first&&!(used&&t.replace(PHONE,'').replace(NAMEW,'').replace(/[^a-z]/gi,'').length<6)){s.issue=t.replace(/[.!]+$/,'');used=true}
+ if(!used&&!isPrice&&!emer&&s.step&&s.step!=='issue'){out.push("Sorry, I didn't catch that.")}
+ out.push(tyNext());return out}
+function tyOwn(){const s=TY.s,b=TY.b;if(!s)return;const f=(k,v)=>`<dt>${k}</dt><dd class="${v?'':'e'}">${v?esc(v):'waiting…'}</dd>`;
+ const sum=s.done?`<b>NEW LEAD${s.urgent?' (URGENT)':''}:</b> ${esc(s.name)}, ${esc(s.phone)}. ${esc(s.issue)}.${s.addr?' Location: '+esc(s.addr)+'.':''} Callback: ${esc(s.time)}. No price given, owner to provide estimate.`:s.stopped?'<b>Opted out.</b> This number replied STOP and won\'t receive texts.':'';
+ const h=`<div class="k"><span>What the owner sees · ${esc(b.name)}</span><span class="ug ${s.urgent?'on':''}">URGENT</span></div><dl>${f('Need',s.issue)}${b.addr?f('Location',s.addr):''}${f('Name',s.name)}${f('Callback #',s.phone)}${f('Best time',s.time)}<dt>Status</dt><dd>${s.stopped?'Opted out':s.done?'Sent to you ✓':'Collecting details'}</dd></dl><div class="sm ${sum?'on':''} ${s.urgent?'u':''}">${sum}</div>`;
+ $('#tyown').innerHTML=h;const sl=$('#slead');sl.innerHTML=h;}
+function openTry(){if(!TY.s)renderTry();show('try');$('#slead').classList.add('on');if(location.hash!=='#try')history.replaceState(null,'','#try')}
+renderList();renderToday();renderAlerts();renderSettings();renderTry();
+document.querySelector('nav button[data-t=try]').onclick=()=>openTry();
+window.addEventListener('hashchange',()=>{if(location.hash==='#try')openTry()});
+const h=location.hash.slice(1);if(h.startsWith('lead'))openLead(+h.slice(4));else if(h==='try')openTry();else if(h)show(h);
+</script>
+</body>
+</html>
