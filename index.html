@@ -697,11 +697,11 @@ function renderTry(){$('#v-try').innerHTML=`<div class="tyhd"><h2>Try it</h2><bu
  cb.onblur=()=>setTimeout(()=>{if(!document.activeElement||document.activeElement.id!=='tycb'){tyOpen(false);cb.value=TY.b?TY.b.label:''}},150);
  $('#tyoin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();tyCustom()}};
  tyPick(TY.b||TYB[0],1)}
-function tyMatches(q){q=(q||'').toLowerCase().trim();return TYB.filter(b=>!q||b.label.toLowerCase().includes(q)||b.cat.toLowerCase().includes(q)||b.name.toLowerCase().includes(q))}
+function tyMatches(q){q=(q||'').toLowerCase().trim();return TYB.filter(b=>!q||b.label.toLowerCase().includes(q)||b.cat.toLowerCase().includes(q)||b.name.toLowerCase().includes(q)).sort((x,y)=>(/^other/i.test(x.label)-/^other/i.test(y.label))||x.label.localeCompare(y.label,'en',{sensitivity:'base'}))}
 function tyOpen(on,q){const l=$('#tylist'),cb=$('#tycb');TY.open=on;l.classList.toggle('on',on);cb.setAttribute('aria-expanded',on);if(!on){cb.removeAttribute('aria-activedescendant');return}
  const m=tyMatches(q);TY.list=m;TY.act=m.length?0:-1;let h='',c='';
- m.forEach((b,i)=>{if(b.cat!==c){if(c)h+='</div>';c=b.cat;h+=`<div role="group" aria-label="${esc(c)}"><div class="g" role="presentation">${esc(c)}</div>`}h+=`<div role="option" id="tyo-${i}" aria-selected="${i===0}" onmousedown="event.preventDefault()" onclick="tyChoose(${i})">${esc(b.label)}</div>`});
- if(c)h+='</div>';l.innerHTML=h||'<div class="none">No matches. Try “Other (type your own)”.</div>';tyAct(TY.act)}
+ m.forEach((b,i)=>{h+=`<div role="option" id="tyo-${i}" aria-selected="${i===0}" onmousedown="event.preventDefault()" onclick="tyChoose(${i})">${esc(b.label)}</div>`});
+ l.innerHTML=h||'<div class="none">No matches. Try “Other (type your own)”.</div>';tyAct(TY.act)}
 function tyAct(i){const cb=$('#tycb');document.querySelectorAll('#tylist [role=option]').forEach((o,j)=>o.setAttribute('aria-selected',j===i));TY.act=i;
  if(i<0){cb.removeAttribute('aria-activedescendant');return}const o=$('#tyo-'+i);cb.setAttribute('aria-activedescendant','tyo-'+i);o&&o.scrollIntoView({block:'nearest'})}
 function tyKey(e){const n=(TY.list||[]).length;
