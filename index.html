@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#eef2f7;--card:#fff;--ink:#0f172a;--mut:#5b6b80;--line:#e2e8f0;--blue:#2563eb;--blue2:#1e40af;--bluel:#eff6ff;--org:#c2410c;--red:#dc2626;--redl:#fef2f2;--grn:#15803d;--grnl:#f0fdf4;--amb:#b45309;--ambl:#fffbeb;--pur:#6d28d9;--purl:#f5f3ff;--sl:#475569;--sll:#f1f5f9}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at 20% 10%,#dbeafe,#eef2f7 45%,#e2e8f0);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;gap:56px;padding:24px}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at 20% 10%,#dbeafe,#eef2f7 45%,#e2e8f0);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;gap:56px;padding:24px}
 :focus-visible{outline:3px solid #60a5fa;outline-offset:2px;border-radius:10px}
 .side{max-width:340px}
 .side h1{font-size:30px;letter-spacing:-.5px;line-height:1.15}
@@ -292,7 +292,7 @@ pre.snip{margin:0 12px 6px;background:#0f172a;color:#e2e8f0;border-radius:10px;p
 .owl .ug{display:none;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.04em}.owl .ug.on{display:inline-block}
 .tylink{margin:0 12px 10px;width:calc(100% - 24px)!important}
 @media(max-width:900px){.side{display:none}}
-@media(max-width:480px){body{padding:0;display:block}.phone{width:100%;height:100vh;height:100dvh;min-height:0;border-radius:0;padding:0;box-shadow:none}.screen{border-radius:0}.status{display:none}.top{padding-top:10px}nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}}
+@media(max-width:480px){html,body{height:100%;overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;width:100%}input,select,textarea{font-size:16px!important}main,.tylist{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}body{padding:0;display:block}.phone{width:100%;height:100vh;height:100dvh;min-height:0;border-radius:0;padding:0;box-shadow:none}.screen{border-radius:0}.status{display:none}.top{padding-top:10px}nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
