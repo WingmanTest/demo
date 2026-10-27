@@ -737,10 +737,10 @@ function tyNext(){const s=TY.s,b=TY.b,hr=hrsOf(b)[2];
  if(!s.time){s.step='time';return openNow(b)?`When's a good time for ${ownerOf(b)} to call you back? Today works, or give me a day and time.`:`When's a good time for ${ownerOf(b)} to call you back? We're open ${hr}.`}
  s.step='confirm';s.confirm=true;const iss=s.issue.replace(/[.!?]+$/,'').replace(/^(\w)/,c=>c.toUpperCase());return `Here's what I have for ${ownerOf(b)}: ${iss}${s.addr?', at '+s.addr:''}. Contact: ${s.name}, ${s.phone}. Call back: ${s.time}. Is that right?`}
 function tyInfo(t,b,s){let r=t,f=false;if(!s.phone&&PHONE.test(r)){s.phone=fmtPhone(r);r=r.replace(PHONE,' ');f=true}
- const parts=r.split(/[,;\n]| and (?=\d)|\s+-\s+/).map(x=>x.trim().replace(/^(my name is|name is|name's|i'm|im|i am|this is|it's|address is|the address is|we're at|i'm at|at)\s+/i,'').replace(/[.!]+$/,'')).filter(Boolean);
+ const parts=r.split(/[,;\n]|(?<=[.!?])\s+| and (?=\d)|\s+-\s+/).map(x=>x.trim().replace(/^(my name is|name is|name's|i'm|im|i am|this is|it's|my address is|address is|the address is|we're at|i'm at|at)\s+/i,'').replace(/[.!]+$/,'')).filter(Boolean);
  const CITY=/^(carson city|reno|sparks|minden|gardnerville|dayton|fernley|incline village|truckee|stateline|zephyr cove|south lake tahoe|lake tahoe|washoe valley|verdi|mound house|genoa|silver springs|stagecoach|yerington|nv|nevada|ca|california)(\s+(nv|nevada|ca))?(\s+\d{5})?$/i;
- parts.forEach((q,i)=>{if(CITY.test(q)){if(s.addr&&!s.addr.toLowerCase().includes(q.toLowerCase())){s.addr+=', '+q;f=true}return}if(b.addr&&!s.addr&&(ADDRW.test(q)||/\d/.test(q)&&/[A-Za-z]{3}/.test(q)||(i===0&&!s.name&&parts.length>=2&&!/^[A-Z][a-z'-]+(\s+[A-Z][a-z'-]+)?$/.test(q)))){s.addr=q;f=true}
- else if(!s.name&&/^[A-Za-z][A-Za-z'-]+(\s+[A-Za-z][A-Za-z'-]+){0,2}$/.test(q)&&!NOTNAME.test(q.split(' ')[0])&&!TIMEW.test(q)){s.name=q.replace(/\b\w/g,c=>c.toUpperCase());f=true}});return f}
+ parts.forEach((q,i)=>{if(CITY.test(q)){if(s.addr&&!s.addr.toLowerCase().includes(q.toLowerCase())){s.addr+=', '+q;f=true}return}if(b.addr&&!s.addr&&(ADDRW.test(q)||/\d/.test(q)&&/[A-Za-z]{3}/.test(q)||(i===0&&!s.name&&parts.length>=2&&!parts.some((x,j)=>j!==i&&/\d/.test(x))&&!/^[A-Z][a-z'-]+(\s+[A-Z][a-z'-]+)?$/.test(q)))){s.addr=q;f=true}
+ else if(!s.name&&/^[A-Za-z][A-Za-z'-]+(\s+[A-Za-z][A-Za-z'-]+){0,3}$/.test(q)&&!NOTNAME.test(q.split(' ')[0])&&!TIMEW.test(q)){s.name=q.replace(/\b\w/g,c=>c.toUpperCase());f=true}});return f}
 function tyReply(t){const s=TY.s,b=TY.b,out=[];
  if(s.stopped)return [];
  if(STOP.test(t)){s.stopped=true;$('#tymsg').disabled=true;return ["You're all set, we won't text you again."]}
@@ -753,7 +753,7 @@ function tyReply(t){const s=TY.s,b=TY.b,out=[];
  const isPrice=PRICE.test(t),emer=EMERG.test(t);
  if(emer&&!s.urgent){s.urgent=true;out.push(`Got it, I'm flagging this as urgent for ${ownerOf(b)} right now.`)}
  if(isPrice)out.push(`${ownerOf(b)==='the owner'?'The owner':ownerOf(b).replace(/^the/,'The')} will go over estimate details when ${ownerOf(b)==='the owner'?'he calls':'they call'}.`);
- let used=false;const first=!s.issue;if(s.step==='info'&&!isPrice&&!emer&&tyInfo(t,b,s))used=true;const ph=t.match(PHONE);if(ph&&!s.phone){s.phone=fmtPhone(t);used=true}
+ let used=false;const first=!s.issue;if(!s.phone&&!first&&/\b(this|same|current)\s+(number|one|phone)\b|number (i'?m|i am) (texting|messaging)|texting from|this is my (number|phone|cell)|\bthis (number )?is (the )?best\b|best (number )?is this/i.test(t)){s.phone='this number';used=true}if(s.step==='info'&&!isPrice&&!emer&&tyInfo(t,b,s))used=true;const ph=t.match(PHONE);if(ph&&!s.phone){s.phone=fmtPhone(t);used=true}
  const nm=t.match(NAMEW);if(nm&&!s.name&&!NOTNAME.test(nm[1].split(' ')[0])){s.name=nm[1];used=true}
  if(b.addr&&!s.addr&&!isPrice&&!OFF.test(t)&&(first?/\b\d{1,6}\s+\w+.*\b(st|street|ave|rd|dr|ct|ln|way|blvd)\b/i.test(t):(ADDRW.test(t)||(s.step==='addr'&&/\d|\w+\s+\w+/.test(t)&&!ph&&!NAMEW.test(t))))){s.addr=t.replace(/^(it's|it is|the address is|address is|we're at|i'm at|at)\s+/i,'').trim().replace(/[.]$/,'');used=true}
  if(TIMEW.test(t)&&!ph&&!first&&(s.step==='time'||(!isPrice&&s.issue&&!s.time))){if(afterHours(t,b)){out.push(`We're open ${hrsOf(b)[2]}. What time in there works for you?`);s.step='time';return out}if(!s.time){s.time=t.replace(/^(how about|maybe|let's do|can you (come|call)( at)?)\s+/i,'').replace(/[?.!]+$/,'');used=true}}
